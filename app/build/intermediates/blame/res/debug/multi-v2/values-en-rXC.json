@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\Me\\Documents\\ScavengerHunt\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-en-rXC\\values-en-rXC.xml",
+            "outputFile": "C:\\Users\\Javier\\StudioProjects\\ScavengerHunt\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-en-rXC\\values-en-rXC.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Me\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.1.0.aar\\f985a96adb64105a4175cb28cfea65db\\res\\values-en-rXC\\values-en-rXC.xml",
+                    "source": "C:\\Users\\Javier\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.1.0.aar\\554e2b0acdd5a48cccbf4aeea80b4380\\res\\values-en-rXC\\values-en-rXC.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

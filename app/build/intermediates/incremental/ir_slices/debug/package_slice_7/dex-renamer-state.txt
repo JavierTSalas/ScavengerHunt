@@ -1,4 +1,4 @@
-#Fri Mar 16 00:44:25 EDT 2018
-base.0=C\:\\Users\\Me\\Documents\\ScavengerHunt\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\7
+#Sun Mar 18 00:59:51 EDT 2018
+base.0=C\:\\Users\\Javier\\StudioProjects\\ScavengerHunt\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\8
 path.0=classes.dex
 renamed.0=classes.dex

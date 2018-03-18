@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">ScavengerHunt</string>
     <string name="title_activity_maps">Map</string>
+    <string name="main_activity_title">Scavenger Hunt</string>
+    <string name="main_activity_place">Place Pins</string>
+    <string name="main_activity_find">Find Pins</string>
+    <string name="fragment_database_test_title">Total Entries:</string>
+    <string name="fragment_database_subtext_text">VV Query Result VV</string>
 </resources>

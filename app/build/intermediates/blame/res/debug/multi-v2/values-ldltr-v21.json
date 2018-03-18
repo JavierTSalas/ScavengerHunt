@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\Me\\Documents\\ScavengerHunt\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-ldltr-v21\\values-ldltr-v21.xml",
+            "outputFile": "C:\\Users\\Javier\\StudioProjects\\ScavengerHunt\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-ldltr-v21\\values-ldltr-v21.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Me\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.1.0.aar\\f985a96adb64105a4175cb28cfea65db\\res\\values-ldltr-v21\\values-ldltr-v21.xml",
+                    "source": "C:\\Users\\Javier\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.1.0.aar\\554e2b0acdd5a48cccbf4aeea80b4380\\res\\values-ldltr-v21\\values-ldltr-v21.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
