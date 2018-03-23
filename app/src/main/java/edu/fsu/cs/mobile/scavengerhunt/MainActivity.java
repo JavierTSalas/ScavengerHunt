@@ -8,7 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import edu.fsu.cs.mobile.scavengerhunt.fragments.databaseTestFragment;
+import edu.fsu.cs.mobile.scavengerhunt.fragments.DatabaseTestFragment;
+import edu.fsu.cs.mobile.scavengerhunt.fragments.PlacePinFragment;
 
 /*
     Main Screen that the user interacts with
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvTitle = findViewById(R.id.main_title);
 
 
+        bPlace.setOnClickListener(this);
         tvTitle.setOnClickListener(this);
     }
 
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.place_b:
+                inflatePlaceFragment();
                 break;
             case R.id.find_b:
                 break;
@@ -43,12 +46,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    private void inflatePlaceFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        PlacePinFragment fragment = new PlacePinFragment();
+        trans.add(R.id.frame, fragment, PlacePinFragment.FRAGMENT_TAG);
+        trans.commit();
+    }
+
     // Inflates the fragment for testing database stuff
     private void enterSuperSecretDevDebugMode() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction trans = manager.beginTransaction();
-        databaseTestFragment fragment = new databaseTestFragment();
-        trans.add(R.id.frame, fragment, fragment.FRAGMENT_TAG);
+        DatabaseTestFragment fragment = new DatabaseTestFragment();
+        trans.add(R.id.frame, fragment, DatabaseTestFragment.FRAGMENT_TAG);
         trans.commit();
     }
 }

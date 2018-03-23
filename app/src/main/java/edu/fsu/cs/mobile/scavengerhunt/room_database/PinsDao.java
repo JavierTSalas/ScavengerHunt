@@ -26,6 +26,8 @@ public interface PinsDao {
             "(longitude between :lonMin AND :lonMax)")
     List<PinEntity> getPinsInsideBoundingBox(long latMin, long latMax , long lonMin, long lonMax);
 
+    @Query("SELECT pinID FROM pins ORDER BY pinID DESC LIMIT 1")
+    long getPinIDOfLastEntry();
 
     @Insert
     void insertAll(PinEntity... pinEntities);

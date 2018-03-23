@@ -19,8 +19,8 @@ import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
 
-public class databaseTestFragment extends Fragment implements View.OnClickListener {
-    private static final String TAG = databaseTestFragment.class.getCanonicalName();
+public class DatabaseTestFragment extends Fragment implements View.OnClickListener {
+    private static final String TAG = DatabaseTestFragment.class.getCanonicalName();
     public static final String FRAGMENT_TAG = "DATABASE_FRAGMENT";
     TextView tvMain;
     EditText etPinId, etUserPid, etLongitude, etLatitude, etColor, etPath, etDescription;
@@ -84,6 +84,7 @@ public class databaseTestFragment extends Fragment implements View.OnClickListen
                 // COLORS HAVE TO START WITH #
                 Color.parseColor(etColor.getText().toString()),
                 new byte[]{0, 0, 0}, // This is weird but refer to the documentation provided in PinEntity
+                false,
                 etDescription.getText().toString());
 
     }

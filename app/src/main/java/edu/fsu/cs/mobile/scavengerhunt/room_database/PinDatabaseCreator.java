@@ -75,7 +75,7 @@ public class PinDatabaseCreator {
                     Context context = params[0].getApplicationContext();
 
                     // Reset the database to have new data on every run.
-                    // context.deleteDatabase(PinDatabase.DATABASE_NAME);
+                    context.deleteDatabase(PinDatabase.DATABASE_NAME);
 
                     // Build the database!
                     PinDatabase db = Room.databaseBuilder(context.getApplicationContext(),
