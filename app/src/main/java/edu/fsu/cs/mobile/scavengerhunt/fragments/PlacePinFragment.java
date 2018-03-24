@@ -47,7 +47,8 @@ public class PlacePinFragment extends Fragment {
     private GoogleMap googleMap;
     private boolean mLocationPermissionGranted = false;
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1; // I don't think the number matters?
-    private double lat, lng;
+    private double lat = Long.MAX_VALUE;
+    private double lng = Long.MAX_VALUE;
 
 
     @Nullable
@@ -117,11 +118,30 @@ public class PlacePinFragment extends Fragment {
 
     private void openPlaceDialog() {
         FragmentManager fm = getActivity().getSupportFragmentManager();
-        GetPinInfoFragment dialogFragment = GetPinInfoFragment.newInstance(new LatLng(lat, lng));
+        GetPinInfoFragment dialogFragment = GetPinInfoFragment.newInstance(generateLatLong());
         dialogFragment.setTargetFragment(this, GetPinInfoFragment.DIALOG_FRAGMENT_REQUEST);
         ((DialogFragment) dialogFragment).show(fm, GetPinInfoFragment.FRAGMENT_TAG);
     }
 
+    private LatLng generateLatLong() {
+        // If these values are not their defaults
+        if (mLocationPermissionGranted) {
+            if (lat != Long.MAX_VALUE && lng != Long.MAX_VALUE) {
+                return new LatLng(lat, lng);
+            } else {
+                LocationManager locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null) {
+                    @SuppressLint("MissingPermission") Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (lastKnownLocationGPS != null) {
+                        return new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
+                    }
+                }
+            }
+        } else {
+            getLocationPermission();
+        }
+        return new LatLng(0, 0);
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

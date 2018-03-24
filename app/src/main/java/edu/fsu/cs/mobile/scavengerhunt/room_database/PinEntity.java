@@ -46,11 +46,11 @@ public class PinEntity {
     @ColumnInfo(name = "description")
     private String description;
 
-    public PinEntity(long pinID, long userID, double longitude, double latitude, int color, byte[] path, boolean pickedUp, String description) {
+    public PinEntity(long pinID, long userID, double latitude, double longitude, int color, byte[] path, boolean pickedUp, String description) {
         this.pinID = pinID;
         this.userID = userID;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         this.color = color;
         this.path = path;
         this.pickedUp = pickedUp;

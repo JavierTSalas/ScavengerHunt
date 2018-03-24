@@ -31,7 +31,6 @@ public class DatabaseTestFragment extends Fragment implements View.OnClickListen
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_database, container, false);
 
-
         tvMain = view.findViewById(R.id.database_fragment_title_text);
 
         etPinId = view.findViewById(R.id.database_fragment_pinID_edit);
