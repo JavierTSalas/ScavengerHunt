@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/dialog_preview_imageview"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/dialog_preview_mapview"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginEnd="8dp"
@@ -30,8 +30,8 @@
         android:layout_marginTop="32dp"
         android:text="SELECT PHOTO"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/dialog_preview_imageview"
-        app:layout_constraintTop_toBottomOf="@+id/dialog_preview_imageview" />
+        app:layout_constraintStart_toStartOf="@+id/dialog_preview_mapview"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_preview_mapview" />
 
     <Button
         android:id="@+id/dialog_clear_button"
@@ -41,9 +41,9 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="24dp"
         android:layout_marginStart="8dp"
-        android:text="Clear"
+        android:text="Clear Photo"
         app:layout_constraintBottom_toBottomOf="@+id/dialog_gallery_button"
-        app:layout_constraintEnd_toEndOf="@+id/dialog_preview_imageview"
+        app:layout_constraintEnd_toEndOf="@+id/dialog_preview_mapview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/dialog_gallery_button" />
 

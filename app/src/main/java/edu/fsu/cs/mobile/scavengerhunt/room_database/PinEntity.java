@@ -102,28 +102,5 @@ public class PinEntity {
         return description;
     }
 
-    public MarkerOptions convertToMO() {
-        // TODO find a better way to determine size - it'll get messy
-        Bitmap bigBitMap = generateBitMap(getPath());
-        return new MarkerOptions()
-                .title(getDescription())
-                .position(new LatLng(getLatitude(), getLongitude()))
-                .icon(BitmapDescriptorFactory.fromBitmap(bitmapSizeByScall(bigBitMap,0.35f)))
-                .flat(true)
-                ;
-    }
 
-    public Bitmap generateBitMap(byte encodedByteArray[]) {
-        return BitmapFactory.decodeByteArray(encodedByteArray, 0, encodedByteArray.length);
-    }
-
-    // Source : https://stackoverflow.com/questions/14851641/change-marker-size-in-google-maps-api-v2
-    public Bitmap bitmapSizeByScall( Bitmap bitmapIn, float scall_zero_to_one_f) {
-
-        Bitmap bitmapOut = Bitmap.createScaledBitmap(bitmapIn,
-                Math.round(bitmapIn.getWidth() * scall_zero_to_one_f),
-                Math.round(bitmapIn.getHeight() * scall_zero_to_one_f), false);
-
-        return bitmapOut;
-    }
 }

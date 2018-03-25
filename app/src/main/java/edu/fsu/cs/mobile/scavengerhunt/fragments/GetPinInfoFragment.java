@@ -18,10 +18,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.vansuita.pickimage.bean.PickResult;
 import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
@@ -34,6 +39,7 @@ import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
+import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -47,12 +53,13 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
     //ColorPicker cp;
 
     double Lat, Lng;
-    private int selectedColorRGB = Integer.MAX_VALUE;
-    private ImageView ImagePreview;
+    private int selectedColorRGB = Color.BLACK;
+    private MapView MapPreview;
     private View vColorPreview;
     private EditText etDesc;
     private Button bSubmit, bPicture, bClear, bColor;
     private Bitmap selectedBitmap;
+    private GoogleMap googleMap;
 
 
     /**
@@ -84,7 +91,29 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
         View view = inflater.inflate(R.layout.fragment_place_dialog, container, false);
         readBundle(getArguments());
 
-        ImagePreview = view.findViewById(R.id.dialog_preview_imageview);
+        MapPreview = view.findViewById(R.id.dialog_preview_mapview);
+        MapPreview.onCreate(savedInstanceState);
+
+        MapPreview.onResume(); // needed to get the map to display immediately
+
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        MapPreview.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap mMap) {
+                googleMap = mMap;
+                Toast.makeText(getActivity().getApplicationContext(), "Map ready!", Toast.LENGTH_LONG).show();
+                clearImagePreview();
+                googleMap.addMarker(generateMarker());
+            }
+        });
+
+
+
         bPicture = view.findViewById(R.id.dialog_gallery_button);
         bClear = view.findViewById(R.id.dialog_clear_button);
         bColor = view.findViewById(R.id.dialog_color_button);
@@ -98,10 +127,44 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
         bSubmit.setOnClickListener(this);
 
 
-        clearImagePreview();
 
 
         return view;
+    }
+
+    /*
+       return new MarkerOptions()
+                .title(getDescription())
+                .position(new LatLng(getLatitude(), getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmapSizeByScall(bigBitMap,0.35f)))
+                .flat(true)
+                ;
+    }
+
+    public Bitmap generateBitMap(byte encodedByteArray[]) {
+        return BitmapFactory.decodeByteArray(encodedByteArray, 0, encodedByteArray.length);
+    }
+
+
+
+    PinEntity EntityToInsert = new PinEntity(
+                    0,
+                            0, // For later use, now just 0
+    Lat,
+    Lng,
+    selectedColorRGB,
+    BLOB,
+            false,
+            ;
+
+     */
+    private MarkerOptions generateMarker() {
+        googleMap.clear();
+        LatLng location = (new LatLng(Lat, Lng));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 12f));
+        Bitmap pin = MapOptionsFactory.getMarkerBitmapFromView(getActivity().getApplicationContext(), selectedBitmap, selectedColorRGB);
+        //sampleImage.setImageBitmap(pin);
+        return MapOptionsFactory.generateMarkerOptions(pin, etDesc.getText().toString(), location);
     }
 
 
@@ -113,6 +176,7 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
                 break;
             case R.id.dialog_clear_button:
                 clearImagePreview();
+                googleMap.addMarker(generateMarker());
                 break;
             case R.id.dialog_color_button:
                 openColorPicker();
@@ -122,6 +186,7 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
                     (new InsertTask(getActivity().getApplicationContext())).execute();
                 } else {
                     notifyUserOfInvalidFields();
+                    googleMap.addMarker(generateMarker());
                 }
                 break;
         }
@@ -132,8 +197,8 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
      */
     private void clearImagePreview() {
         Drawable drawable = AppCompatResources.getDrawable(getActivity().getApplicationContext(), R.drawable.camera);
-        ImagePreview.setImageDrawable(drawable);
-        selectedBitmap = null;
+        selectedBitmap = MapOptionsFactory.drawableToBitmap(drawable);
+        googleMap.addMarker(generateMarker());
     }
 
     /**
@@ -148,11 +213,13 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
 
     }
 
+    /*
+        Checks for valid fields
+     */
     private boolean validFields() {
         boolean ValidImageUri = selectedBitmap != null;
         boolean ValidDesc = !etDesc.getText().toString().isEmpty();
-        boolean ValidColor = selectedColorRGB != Integer.MAX_VALUE; // Check if the value is not the default value
-        return ValidImageUri && ValidDesc && ValidColor;
+        return ValidImageUri && ValidDesc;
     }
 
     // TODO: Find a better way to do this
@@ -188,6 +255,7 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
                     vColorPreview.setBackgroundColor(selectedColorRGB);
                     Log.d(TAG, "Received " + String.valueOf(selectedColorRGB) + " from intent");
                     // #782F40 = Garnet because school pride matters
+                    googleMap.addMarker(generateMarker());
                 }
                 break;
         }
@@ -204,9 +272,7 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
                     public void onPickResult(PickResult r) {
                         if (r.getError() == null) {
                             selectedBitmap = r.getBitmap();
-                            ImagePreview.setImageBitmap(r.getBitmap());
-                            ImagePreview.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                            ImagePreview.invalidate();
+                            googleMap.addMarker(generateMarker());
                         }
                     }
                 })

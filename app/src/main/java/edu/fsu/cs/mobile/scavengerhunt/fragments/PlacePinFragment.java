@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
+import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -175,11 +176,9 @@ public class PlacePinFragment extends Fragment {
             googleMap.setMyLocationEnabled(true);
 
             // For dropping a marker at a point on the Map
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-
+            LatLng currentLocation = generateLatLong();
             // For zooming automatically to the location of the marker
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLocation).zoom(12).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
@@ -237,7 +236,7 @@ public class PlacePinFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             PinDatabase db = creator.getDatabase();
-            mapOptions = db.PinsDao().getSingleEntity(pinId).convertToMO();
+            mapOptions = MapOptionsFactory.convertToMO(mContext, db.PinsDao().getSingleEntity(pinId));
             return null;
         }
 

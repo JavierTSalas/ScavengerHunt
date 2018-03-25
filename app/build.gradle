@@ -3,8 +3,10 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+
         applicationId "edu.fsu.cs.mobile.scavengerhunt"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -42,4 +44,8 @@ dependencies {
 
     // Image Picker
     implementation 'com.github.jrvansuita:PickImage:2.1.6'
+
+    // Circle Image View
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+
 }
