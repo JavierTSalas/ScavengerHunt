@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import edu.fsu.cs.mobile.scavengerhunt.fragments.DatabaseTestFragment;
+import edu.fsu.cs.mobile.scavengerhunt.fragments.FindPinFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.PlacePinFragment;
 
 /*
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         bPlace.setOnClickListener(this);
+        bFind.setOnClickListener(this);
         tvTitle.setOnClickListener(this);
     }
 
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 inflatePlaceFragment();
                 break;
             case R.id.find_b:
+                inflateFindFragment();
                 break;
             case R.id.main_title:
                 // Who really cares about functions names when you have auto complete?
@@ -46,12 +49,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void inflateFindFragment(){
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        FindPinFragment fragment = new FindPinFragment();
+        trans.add(R.id.frame, fragment, FindPinFragment.FRAGMENT_TAG);
+        trans.addToBackStack("Find");
+        trans.commit();
+    }
 
     private void inflatePlaceFragment() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction trans = manager.beginTransaction();
         PlacePinFragment fragment = new PlacePinFragment();
-        trans.add(R.id.frame, fragment, PlacePinFragment.FRAGMENT_TAG);
+        trans.replace(R.id.frame, fragment, PlacePinFragment.FRAGMENT_TAG);
+        trans.addToBackStack("Place");
         trans.commit();
     }
 
