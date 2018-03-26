@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction trans = manager.beginTransaction();
         FindPinFragment fragment = new FindPinFragment();
-        trans.add(R.id.frame, fragment, FindPinFragment.FRAGMENT_TAG);
+        trans.replace(R.id.frame, fragment, FindPinFragment.FRAGMENT_TAG);
         trans.addToBackStack("Find");
         trans.commit();
     }
