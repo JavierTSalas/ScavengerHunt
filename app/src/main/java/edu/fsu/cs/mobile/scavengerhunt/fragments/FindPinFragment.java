@@ -6,6 +6,7 @@ package edu.fsu.cs.mobile.scavengerhunt.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -35,6 +36,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
+import edu.fsu.cs.mobile.scavengerhunt.MainActivity;
+import edu.fsu.cs.mobile.scavengerhunt.MapsActivity;
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
@@ -204,6 +207,18 @@ public class FindPinFragment extends Fragment {
         }
     }
 
+    //Trying to add a counter of pins found
+    private void PinFound(){
+
+
+
+       Toast.makeText(getActivity().getApplicationContext(), "test", Toast.LENGTH_LONG).show();
+
+
+    }
+
+
+
     //Finds the closest pin, but makes pins that are too close visible
     private float findClosestPin(Location mLoc){
         if(allPinMO.size() > 0) {
@@ -223,7 +238,9 @@ public class FindPinFragment extends Fragment {
                         small = -1;
                         googleMap.addMarker(allPinMO.get(i));
                         allPinMO.remove(i);
-                        Toast.makeText(getActivity().getApplicationContext(), "Found A Pin!", Toast.LENGTH_LONG).show();
+
+                        PinFound();
+
                     }
                     else{
                         small = mLoc.distanceTo(temp);
