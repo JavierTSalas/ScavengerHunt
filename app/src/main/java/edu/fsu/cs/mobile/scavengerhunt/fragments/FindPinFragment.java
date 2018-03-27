@@ -6,7 +6,6 @@ package edu.fsu.cs.mobile.scavengerhunt.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -22,6 +21,9 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-import edu.fsu.cs.mobile.scavengerhunt.MainActivity;
-import edu.fsu.cs.mobile.scavengerhunt.MapsActivity;
+
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
@@ -56,6 +57,7 @@ public class FindPinFragment extends Fragment {
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1; // I don't think the number matters?
     private double lat = Long.MAX_VALUE;
     private double lng = Long.MAX_VALUE;
+    private int pinSessionCounter = 0;
 
     final private float FIND_DISTANCE = 50;
 
@@ -79,6 +81,40 @@ public class FindPinFragment extends Fragment {
         mMapView.onCreate(savedInstanceState);
 
         mMapView.onResume(); // needed to get the map to display immediately
+
+        //Setting up list view and adapter
+        //Templist to figure out why listview isn't showing above map
+        String[] menuItems = {"Do somthin!", "Anotherthing!","teehee"};
+
+        final ListView listView = (ListView) view.findViewById(R.id.hintList);
+
+        ArrayAdapter<String> pinlist = new ArrayAdapter<String>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                menuItems
+        );
+        //May bring in stuff from database, but haven't got the listview to show
+       /* ArrayAdapter<MarkerOptions> pinlist = new ArrayAdapter<MarkerOptions>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                allPinMO
+
+        );*/
+
+        listView.setAdapter(pinlist);
+
+        //Button to show listview
+        Button hintButton = (Button) view.findViewById(R.id.HintButton);
+        hintButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getActivity().getApplicationContext(), "Temp", Toast.LENGTH_LONG).show();
+
+                listView.setVisibility(listView.isShown() ? View.GONE : View.VISIBLE);
+            }
+        });
+
+
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -207,16 +243,15 @@ public class FindPinFragment extends Fragment {
         }
     }
 
-    //Trying to add a counter of pins found
+    //Counting each pin found during one session.
     private void PinFound(){
 
+        pinSessionCounter++;
 
-
-       Toast.makeText(getActivity().getApplicationContext(), "test", Toast.LENGTH_LONG).show();
+       Toast.makeText(getActivity().getApplicationContext(), "Pins found this session: " + pinSessionCounter + "\nGood Job! c:", Toast.LENGTH_LONG).show();
 
 
     }
-
 
 
     //Finds the closest pin, but makes pins that are too close visible
@@ -239,7 +274,10 @@ public class FindPinFragment extends Fragment {
                         googleMap.addMarker(allPinMO.get(i));
                         allPinMO.remove(i);
 
-                        PinFound();
+
+                            PinFound();
+                            break; //For some reason looped 5 times, guess it is checking stuff?
+
 
                     }
                     else{
