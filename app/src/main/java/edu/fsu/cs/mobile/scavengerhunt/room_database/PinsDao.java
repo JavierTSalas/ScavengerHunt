@@ -29,6 +29,12 @@ public interface PinsDao {
     @Query("SELECT pinID FROM pins ORDER BY pinID DESC LIMIT 1")
     long getPinIDOfLastEntry();
 
+    @Query("SELECT * FROM pins WHERE " +
+            "(latitude = :lat)" +
+            "AND" +
+            "(longitude = :lon)")
+    List<PinEntity> getPinFromLatLon(long lat, long lon);
+
     @Insert
     void insertAll(PinEntity... pinEntities);
 

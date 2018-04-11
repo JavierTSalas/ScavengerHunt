@@ -7,7 +7,9 @@ package edu.fsu.cs.mobile.scavengerhunt.fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -15,9 +17,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,8 +56,10 @@ public class FindPinFragment extends Fragment {
 
     MapView mMapView;
     TextView mTemperature;
+    FloatingActionButton mNearPin;
     private GoogleMap googleMap;
     private ArrayList<MarkerOptions> allPinMO = new ArrayList<MarkerOptions>();
+    private ArrayList<PinEntity> allPin = new ArrayList<PinEntity>();
     private boolean mLocationPermissionGranted = false;
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1; // I don't think the number matters?
     private double lat = Long.MAX_VALUE;
@@ -77,10 +84,10 @@ public class FindPinFragment extends Fragment {
 
         mTemperature = (TextView) view.findViewById(R.id.temp_id);
 
+        mNearPin = (FloatingActionButton) view.findViewById(R.id.near_button);
+
         mMapView = (MapView) view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
-
-        mMapView.onResume(); // needed to get the map to display immediately
 
         //Setting up list view and adapter
         //Templist to figure out why listview isn't showing above map
@@ -93,6 +100,11 @@ public class FindPinFragment extends Fragment {
                 android.R.layout.simple_list_item_1,
                 menuItems
         );
+        listView.setAdapter(pinlist);
+
+
+        mMapView.onResume(); // needed to get the map to display immediately
+
         //May bring in stuff from database, but haven't got the listview to show
        /* ArrayAdapter<MarkerOptions> pinlist = new ArrayAdapter<MarkerOptions>(
                 getActivity(),
@@ -101,7 +113,6 @@ public class FindPinFragment extends Fragment {
 
         );*/
 
-        listView.setAdapter(pinlist);
 
         //Button to show listview
         Button hintButton = (Button) view.findViewById(R.id.HintButton);
@@ -270,18 +281,28 @@ public class FindPinFragment extends Fragment {
 
                 if(mLoc.distanceTo(temp) <= small || mLoc.distanceTo(temp) <= FIND_DISTANCE || small < 0){
                     if(mLoc.distanceTo(temp) <= FIND_DISTANCE){
+                        //Sets the nearest to null in the text and image
                         small = -1;
+                        mNearPin.setImageDrawable(null);
+
+                        //Adds a marker for this to the map
                         googleMap.addMarker(allPinMO.get(i));
                         allPinMO.remove(i);
-
-
-                            PinFound();
-                            break; //For some reason looped 5 times, guess it is checking stuff?
-
+                        
+                        PinFound();
+                        break; //For some reason looped 5 times, guess it is checking stuff?
 
                     }
                     else{
                         small = mLoc.distanceTo(temp);
+
+                        //Sets up a rounded bitmap for the nearest pin
+                        Bitmap square = MapOptionsFactory.decodeBLOB(allPin.get(i).getPath());
+                        RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), square);
+                        rounded.setCornerRadius(Math.min(square.getWidth(), square.getHeight()) / 2.0f);
+
+                        //Sets the nearPin button to hold that rounded bitmap
+                        mNearPin.setImageDrawable(rounded);
                     }
                 }
             }
@@ -375,6 +396,7 @@ public class FindPinFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             for(int i = 0; i < allMO.size(); i++){
                 allPinMO.add(allMO.get(i));
+                allPin.add(allPins.get((i)));
             }
             super.onPostExecute(aVoid);
         }

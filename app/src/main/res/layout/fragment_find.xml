@@ -50,5 +50,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginRight="8dp" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/near_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:clickable="true"
+            app:backgroundTint="@color/gray600"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
 
 </android.support.constraint.ConstraintLayout>
