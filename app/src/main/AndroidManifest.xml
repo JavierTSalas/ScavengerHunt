@@ -55,8 +55,25 @@
                 android:resource="@xml/picker_provider_paths" />
         </provider>
 
+
+
+        <!-- https://stackoverflow.com/questions/37671380/what-is-fcm-token-in-firebase -->
+        <service
+            android:name=".util.MyInstanceIDListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- https://stackoverflow.com/questions/37671380/what-is-fcm-token-in-firebase -->
+        <service
+            android:name=".util.MyInstanceIDListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
     </application>
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 </manifest>
