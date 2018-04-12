@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/find"
+        android:title="@string/find_pins"/>
+    <item android:id="@+id/place"
+        android:title="@string/place_pins"/>
+    <item android:id="@+id/messaging"
+        android:title="@string/messaging"/>
+    <item android:id="@+id/friends_list"
+        android:title="@string/friends"/>
+
+</menu>
