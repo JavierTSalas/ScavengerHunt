@@ -10,4 +10,21 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="register_login_text">Login Screen</string>
+    <string name="loginNameField">Display name</string>
+    <string name="loginEmailField">Email</string>
+    <string name="loginPasswordField">Password</string>
+    <string name="loginPasswordFieldConfirm">Confirm your password</string>
+    <string name="successful_login">Login Successful!</string>
+    <string name="successful_register">Account successfuly registered!</string>
+    <string name="err_msg_email">Invalid Email</string>
+    <string name="err_msg_name">Invalid Name</string>
+    <string name="err_msg_password">Invalid Password</string>
+    <string name="err_msg_password_no_match">Passwords must match</string>
+    <string name="find_pins">Find pins</string>
+    <string name="place_pins">Place pins</string>
+    <string name="messaging">Messaging</string>
+    <string name="friends">Friends</string>
+    <string name="Open">Open</string>
+    <string name="Close">Close</string>
 </resources>

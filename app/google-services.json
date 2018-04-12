@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "501619577679",
+    "firebase_url": "https://amiable-raceway-198015.firebaseio.com",
+    "project_id": "amiable-raceway-198015",
+    "storage_bucket": "amiable-raceway-198015.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501619577679:android:aab3b0b4d6677a93",
+        "android_client_info": {
+          "package_name": "edu.fsu.cs.mobile.scavengerhunt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "501619577679-mpmfkpism106dn480so0sq91lgjcndlo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxoHRBgmr0e5EprWj7Iqi9FNKCXcBl3AI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
