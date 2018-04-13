@@ -89,16 +89,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (id) {
                     case R.id.find:
                         inflateFindFragment();
+                        break;
                     case R.id.place:
                         inflatePlaceFragment();
+                        break;
                     case R.id.messaging:
                         Toast.makeText(MainActivity.this, "Messaging", Toast.LENGTH_SHORT).show();
+                        break;
                     case R.id.friends_list:
                         Toast.makeText(MainActivity.this, "Friends list", Toast.LENGTH_SHORT).show();
+                        break;
                     case R.id.leaderboard:
                         inflateLeaderboard();
+                        break;
                     default:
                         return true;
+                        break;
                 }
 
 
