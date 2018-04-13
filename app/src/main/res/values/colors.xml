@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="hint_foreground_material_light">#FF7081</color>
+
+    <color name="white">#FFFFFF</color>
 </resources>

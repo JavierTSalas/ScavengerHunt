@@ -1,5 +1,6 @@
 package edu.fsu.cs.mobile.scavengerhunt;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -16,6 +17,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.games.Games;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -30,6 +34,7 @@ import java.util.Map;
 
 import edu.fsu.cs.mobile.scavengerhunt.fragments.DatabaseTestFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.FindPinFragment;
+import edu.fsu.cs.mobile.scavengerhunt.fragments.GoogleLoginFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.LoginFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.PlacePinFragment;
 import edu.fsu.cs.mobile.scavengerhunt.util.PrefManager;
@@ -47,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DrawerLayout dl;
     private ActionBarDrawerToggle t;
     private NavigationView nv;
+    private static final int RC_LEADERBOARD_UI = 9004;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(MainActivity.this, "Messaging", Toast.LENGTH_SHORT).show();
                     case R.id.friends_list:
                         Toast.makeText(MainActivity.this, "Friends list", Toast.LENGTH_SHORT).show();
+                    case R.id.leaderboard:
+                        inflateLeaderboard();
                     default:
                         return true;
                 }
@@ -220,6 +228,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         trans.replace(R.id.frame, fragment, PlacePinFragment.FRAGMENT_TAG);
         trans.addToBackStack("Place");
         trans.commit();
+    }
+
+    private void inflateLeaderboard(){
+        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
+
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+
+        if(acc == null){
+            GoogleLoginFragment fragment = new GoogleLoginFragment();
+            trans.replace(R.id.frame, fragment, GoogleLoginFragment.FRAGMENT_TAG);
+            trans.addToBackStack("GoogleLogin");
+            trans.commit();
+        } else {
+            Toast.makeText(this, "I happened", Toast.LENGTH_LONG).show();
+            GoogleSignIn.requestPermissions(this, 3, acc, Games.SCOPE_GAMES_LITE);
+            Games.getLeaderboardsClient(this, acc)
+                    .getLeaderboardIntent(getString(R.string.leaderboard_leaderboard))
+                    .addOnSuccessListener(new OnSuccessListener<Intent>() {
+                        @Override
+                        public void onSuccess(Intent intent) {
+                            startActivityForResult(intent, RC_LEADERBOARD_UI);
+                        }
+                    });
+        }
     }
 
     // Inflates the fragment for testing database stuff

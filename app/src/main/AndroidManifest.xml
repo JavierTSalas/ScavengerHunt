@@ -32,15 +32,13 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-        </activity>
+            android:label="@string/title_activity_maps"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
         <!-- For image picker -->
@@ -55,25 +53,21 @@
                 android:resource="@xml/picker_provider_paths" />
         </provider>
 
-
-
         <!-- https://stackoverflow.com/questions/37671380/what-is-fcm-token-in-firebase -->
-        <service
-            android:name=".util.MyInstanceIDListenerService">
+        <service android:name=".util.MyInstanceIDListenerService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
         <!-- https://stackoverflow.com/questions/37671380/what-is-fcm-token-in-firebase -->
-        <service
-            android:name=".util.MyInstanceIDListenerService">
+        <service android:name=".util.MyInstanceIDListenerService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
+        <activity android:name=".GoogleLoginActivity"></activity>
     </application>
-
 
 </manifest>

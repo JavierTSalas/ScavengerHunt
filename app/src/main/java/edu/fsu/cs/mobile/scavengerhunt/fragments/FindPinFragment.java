@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.games.Game;
+import com.google.android.gms.games.Games;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -85,47 +92,24 @@ public class FindPinFragment extends Fragment {
         mTemperature = (TextView) view.findViewById(R.id.temp_id);
 
         mNearPin = (FloatingActionButton) view.findViewById(R.id.near_button);
+        mNearPin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    Games.
+                            getLeaderboardsClient(getContext(), GoogleSignIn.getLastSignedInAccount(getContext())).
+                            submitScore(getString(R.string.leaderboard_leaderboard), 1000);
+                    Log.i("I did it!","I did ittttt");
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
 
         mMapView = (MapView) view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        //Setting up list view and adapter
-        //Templist to figure out why listview isn't showing above map
-        String[] menuItems = {"Do somthin!", "Anotherthing!","teehee"};
-
-        final ListView listView = (ListView) view.findViewById(R.id.hintList);
-
-        ArrayAdapter<String> pinlist = new ArrayAdapter<String>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                menuItems
-        );
-        listView.setAdapter(pinlist);
-
-
         mMapView.onResume(); // needed to get the map to display immediately
-
-        //May bring in stuff from database, but haven't got the listview to show
-       /* ArrayAdapter<MarkerOptions> pinlist = new ArrayAdapter<MarkerOptions>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                allPinMO
-
-        );*/
-
-
-        //Button to show listview
-        Button hintButton = (Button) view.findViewById(R.id.HintButton);
-        hintButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity().getApplicationContext(), "Temp", Toast.LENGTH_LONG).show();
-
-                listView.setVisibility(listView.isShown() ? View.GONE : View.VISIBLE);
-            }
-        });
-
-
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -144,6 +128,8 @@ public class FindPinFragment extends Fragment {
                 }
             }
         });
+
+
 
 
         // Required for using our tool bar
@@ -347,9 +333,16 @@ public class FindPinFragment extends Fragment {
     }
 
     @Override
+    public void onStop(){
+        super.onStop();
+        mMapView.onStop();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+
     }
 
     @Override

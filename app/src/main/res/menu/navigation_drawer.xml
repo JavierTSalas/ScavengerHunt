@@ -9,5 +9,7 @@
         android:title="@string/messaging"/>
     <item android:id="@+id/friends_list"
         android:title="@string/friends"/>
+    <item android:id="@+id/leaderboard"
+        android:title="Leaderboard"/>
 
 </menu>
