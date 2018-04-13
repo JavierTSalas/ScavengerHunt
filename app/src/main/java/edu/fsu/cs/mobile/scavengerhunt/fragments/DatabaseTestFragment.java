@@ -70,12 +70,8 @@ public class DatabaseTestFragment extends Fragment implements View.OnClickListen
      * @return User Defined PinEntity
      */
     private PinEntity extractFromFields() {
-        //     public PinEntity(long pinID, long userID, long longitude, long latitude, Color color, URI path, String description)
+        //    Constructor => PinEntity(long pinID, long userID, long longitude, long latitude, Color color, URI path, String description)
         return new PinEntity(
-                /*
-                Our PinID is auto generated so we don't need
-                Long.parseLong(etPinId.getText().toString()),
-                */
                 0,
                 Long.parseLong(etUserPid.getText().toString()),
                 Long.parseLong(etLongitude.getText().toString()),

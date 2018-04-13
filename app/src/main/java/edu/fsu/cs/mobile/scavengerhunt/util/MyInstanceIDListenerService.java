@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-// Source :  https://stackoverflow.com/questions/37671380/what-is-fcm-token-in-firebase
 public class MyInstanceIDListenerService extends FirebaseInstanceIdService {
 
     private static final String TAG = MyInstanceIDListenerService.class.getCanonicalName();
@@ -30,6 +29,7 @@ public class MyInstanceIDListenerService extends FirebaseInstanceIdService {
      * you retrieve the token.
      */
     // [START refresh_token]
+    // Source :  https://stackoverflow.com/questions/37671380/what-is-fcm-token-in-firebase
     @Override
     public void onTokenRefresh() {
         // Get updated InstanceID token.

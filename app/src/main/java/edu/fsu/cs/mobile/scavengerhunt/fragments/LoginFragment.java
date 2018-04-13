@@ -34,6 +34,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import edu.fsu.cs.mobile.scavengerhunt.R;
 
+
+// Reference : https://github.com/firebase/quickstart-android/tree/master/auth
 public class LoginFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = LoginFragment.class.getCanonicalName();
@@ -89,7 +91,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 if (user != null) {
                     final String displayName = inputName.getText().toString();
                     UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(inputName.getText().toString()).build();
+                            .setDisplayName(inputName.getText().toString().trim()).build();
                     user.updateProfile(profileUpdates);
 
                 }
@@ -97,8 +99,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         };
 
         mAuth.addAuthStateListener(mAuthListener);
-        // Remove in live version
-        //signOut();
 
 
         return globalView;
@@ -130,15 +130,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             String strRes = getActivity().getResources().getString(stringRes);
             Snackbar snack = Snackbar.make(getActivity().findViewById(android.R.id.content), strRes, Snackbar.LENGTH_LONG);
             snack.show();
-            /*
-            View view = snack.getView();
-            TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
-            tv.setText(R.string.successful_register);
-             */
         }
 
     }
 
+    // TODO: Decide if we need this
     private void sendEmailVerification() {
 
 // Send verification email
@@ -267,7 +263,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         if (fm.getFragments().size() > 0) {
             Fragment fragment = fm.getFragments().get(fm.getFragments().size() - 1);
-            //fm.findFragmentByTag(DelayedProgressDialog.FRAGMENT_TAG);
             if (fragment instanceof DelayedProgressDialog) {
                 ((DelayedProgressDialog) fragment).cancel();
             }
@@ -288,7 +283,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         return validateEmail() && validatePassword() && validatePasswordConfirm() && validateName();
     }
 
-//Toast.makeText(getActivity().getApplicationContext(), "Thank You!", Toast.LENGTH_SHORT).show();
 
 
     private boolean validateEmail() {

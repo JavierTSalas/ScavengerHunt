@@ -24,25 +24,12 @@ import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
  */
 public class MapOptionsFactory {
 
+    // https://stackoverflow.com/questions/14811579/how-to-create-a-custom-shaped-bitmap-marker-with-android-map-api-v2
     public static Bitmap getMarkerBitmapFromView(Context mContext, Bitmap bitmap, int color) {
-
         View customMarkerView = ((LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_pin, null);
         CircleImageView markerImageView = (CircleImageView) customMarkerView.findViewById(R.id.profile_image);
         markerImageView.setImageBitmap(bitmap);
-
         markerImageView.setBorderColor(color);
-
-        /*
-        // find the correct path using name
-        tail = (VectorMasterView) customMarkerView.findViewById(R.id.tail);
-        PathModel outline = tail.getPathModelByName("tailBody");
-
-        // set the stroke color
-        outline.setStrokeColor(color);
-        // set the fill color (if fill color is not set or is TRANSPARENT, then no fill is drawn)
-        outline.setFillColor(color);
-        */
-
         customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
         customMarkerView.buildDrawingCache();

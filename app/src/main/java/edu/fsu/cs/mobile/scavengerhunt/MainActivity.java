@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvTitle.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                // This generates our FirebaseCloudMessaging Token
                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 String refreshedToken = FirebaseInstanceId.getInstance().getToken();
                 String device_id = FirebaseInstanceId.getInstance().getId();
@@ -104,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         bPlace.setOnClickListener(this);
         bFind.setOnClickListener(this);
-        //tvTitle.setOnClickListener(this);
     }
 
 
@@ -194,12 +194,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 inflateFindFragment();
                 break;
             case R.id.main_title:
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                //mAuth.signOut();
-
                 Snackbar snack = Snackbar.make(this.findViewById(android.R.id.content), "You have signed out", Snackbar.LENGTH_LONG);
                 snack.show();
-                //enterSuperSecretDevDebugMode();
                 break;
         }
     }

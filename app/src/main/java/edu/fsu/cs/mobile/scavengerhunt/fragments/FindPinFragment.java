@@ -105,14 +105,6 @@ public class FindPinFragment extends Fragment {
 
         mMapView.onResume(); // needed to get the map to display immediately
 
-        //May bring in stuff from database, but haven't got the listview to show
-       /* ArrayAdapter<MarkerOptions> pinlist = new ArrayAdapter<MarkerOptions>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                allPinMO
-
-        );*/
-
 
         //Button to show listview
         Button hintButton = (Button) view.findViewById(R.id.HintButton);

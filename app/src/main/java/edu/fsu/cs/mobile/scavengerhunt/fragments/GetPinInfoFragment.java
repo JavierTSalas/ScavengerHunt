@@ -50,7 +50,6 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
     private static final String LngKey = "Longitude";
     public static final String UNIQUE_KEY = "UniqueId";
     public static final int DIALOG_FRAGMENT_REQUEST = 2; // I don't think the number matters?
-    //ColorPicker cp;
 
     double Lat, Lng;
     private int selectedColorRGB = Color.BLACK;
@@ -132,38 +131,12 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
         return view;
     }
 
-    /*
-       return new MarkerOptions()
-                .title(getDescription())
-                .position(new LatLng(getLatitude(), getLongitude()))
-                .icon(BitmapDescriptorFactory.fromBitmap(bitmapSizeByScall(bigBitMap,0.35f)))
-                .flat(true)
-                ;
-    }
 
-    public Bitmap generateBitMap(byte encodedByteArray[]) {
-        return BitmapFactory.decodeByteArray(encodedByteArray, 0, encodedByteArray.length);
-    }
-
-
-
-    PinEntity EntityToInsert = new PinEntity(
-                    0,
-                            0, // For later use, now just 0
-    Lat,
-    Lng,
-    selectedColorRGB,
-    BLOB,
-            false,
-            ;
-
-     */
     private MarkerOptions generateMarker() {
         googleMap.clear();
         LatLng location = (new LatLng(Lat, Lng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 12f));
         Bitmap pin = MapOptionsFactory.getMarkerBitmapFromView(getActivity().getApplicationContext(), selectedBitmap, selectedColorRGB);
-        //sampleImage.setImageBitmap(pin);
         return MapOptionsFactory.generateMarkerOptions(pin, etDesc.getText().toString(), location);
     }
 
@@ -254,7 +227,6 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
                     selectedColorRGB = intent.getIntExtra(ColorPickFragment.COLOR_KEY, Color.parseColor("#782F40"));
                     vColorPreview.setBackgroundColor(selectedColorRGB);
                     Log.d(TAG, "Received " + String.valueOf(selectedColorRGB) + " from intent");
-                    // #782F40 = Garnet because school pride matters
                     googleMap.addMarker(generateMarker());
                 }
                 break;
@@ -314,10 +286,6 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
             }
 
             PinEntity EntityToInsert = new PinEntity(
-                /*
-                Our PinID is auto generated so we don't need
-                Long.parseLong(etPinId.getText().toString()),
-                */
                     0,
                     0, // For later use, now just 0
                     Lat,

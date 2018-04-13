@@ -19,25 +19,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // ...
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
             sendSimpleNotifcation(remoteMessage);
-            /*
-            // Check if data needs to be processed by long running job
-            if (true) {
-                // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
-                // Handle message within 10 seconds
-                handleNow();
-            }
-             */
-
         }
 
 
@@ -47,10 +35,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             sendNotification(remoteMessage);
         }
 
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendSimpleNotifcation method below.
     }
 
+    // Used for making a notification our of our RemoteMessage's bundles data
+    // This method can be called on a write to [firestore]/{Uid}/new_friend
+    // This for now is done manually but will get a UI in proj3
+
+    // https://stackoverflow.com/questions/41750548/show-notification-of-firebase-message-onreceived-when-app-is-in-background-throu
     private void sendNotification(RemoteMessage remoteMessage) {
         RemoteMessage.Notification notification = remoteMessage.getNotification();
         Intent intent = new Intent(this, MainActivity.class);
@@ -74,6 +65,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
 
+    // Only used for making simple notifications from messages
+    // This method can be called by firebase messaging control panel
     private void sendSimpleNotifcation(RemoteMessage remoteMessage) {
 
 
