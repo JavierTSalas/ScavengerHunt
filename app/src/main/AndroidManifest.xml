@@ -81,6 +81,7 @@
         </service>
 
 
+        <!-- https://github.com/firebase/quickstart-android/tree/master/messaging -->
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more. -->
         <meta-data
