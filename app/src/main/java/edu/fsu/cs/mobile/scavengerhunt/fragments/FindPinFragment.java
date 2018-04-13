@@ -297,6 +297,7 @@ public class FindPinFragment extends Fragment {
                         small = mLoc.distanceTo(temp);
 
                         //Sets up a rounded bitmap for the nearest pin
+                        //Found on https://stackoverflow.com/questions/24878740/how-to-use-roundedbitmapdrawable
                         Bitmap square = MapOptionsFactory.decodeBLOB(allPin.get(i).getPath());
                         RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), square);
                         rounded.setCornerRadius(Math.min(square.getWidth(), square.getHeight()) / 2.0f);
