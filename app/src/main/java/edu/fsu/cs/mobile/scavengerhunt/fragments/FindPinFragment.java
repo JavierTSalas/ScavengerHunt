@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +41,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 import edu.fsu.cs.mobile.scavengerhunt.R;
@@ -53,6 +61,8 @@ import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
 public class FindPinFragment extends Fragment {
     private static final String TAG = FindPinFragment.class.getCanonicalName();
     public static final String FRAGMENT_TAG = "Find_Fragment";
+
+    private long points;
 
     MapView mMapView;
     TextView mTemperature;
@@ -89,33 +99,7 @@ public class FindPinFragment extends Fragment {
         mMapView = (MapView) view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        //Setting up list view and adapter
-        //Templist to figure out why listview isn't showing above map
-        String[] menuItems = {"Do somthin!", "Anotherthing!","teehee"};
-
-        final ListView listView = (ListView) view.findViewById(R.id.hintList);
-
-        ArrayAdapter<String> pinlist = new ArrayAdapter<String>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                menuItems
-        );
-        listView.setAdapter(pinlist);
-
-
-        mMapView.onResume(); // needed to get the map to display immediately
-
-
-        //Button to show listview
-        Button hintButton = (Button) view.findViewById(R.id.HintButton);
-        hintButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity().getApplicationContext(), "Temp", Toast.LENGTH_LONG).show();
-
-                listView.setVisibility(listView.isShown() ? View.GONE : View.VISIBLE);
-            }
-        });
+        points = 0;
 
 
 
@@ -248,10 +232,11 @@ public class FindPinFragment extends Fragment {
 
     //Counting each pin found during one session.
     private void PinFound(){
-
         pinSessionCounter++;
 
-       Toast.makeText(getActivity().getApplicationContext(), "Pins found this session: " + pinSessionCounter + "\nGood Job! c:", Toast.LENGTH_LONG).show();
+        points += 100;
+
+        Toast.makeText(getActivity().getApplicationContext(), "Pins found this session: " + pinSessionCounter , Toast.LENGTH_LONG).show();
 
 
     }
@@ -280,7 +265,7 @@ public class FindPinFragment extends Fragment {
                         //Adds a marker for this to the map
                         googleMap.addMarker(allPinMO.get(i));
                         allPinMO.remove(i);
-                        
+
                         PinFound();
                         break; //For some reason looped 5 times, guess it is checking stuff?
 
@@ -289,6 +274,7 @@ public class FindPinFragment extends Fragment {
                         small = mLoc.distanceTo(temp);
 
                         //Sets up a rounded bitmap for the nearest pin
+                        //Found on https://stackoverflow.com/questions/24878740/how-to-use-roundedbitmapdrawable
                         Bitmap square = MapOptionsFactory.decodeBLOB(allPin.get(i).getPath());
                         RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), square);
                         rounded.setCornerRadius(Math.min(square.getWidth(), square.getHeight()) / 2.0f);
@@ -335,6 +321,7 @@ public class FindPinFragment extends Fragment {
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+        updateDatabase();
     }
 
     @Override
@@ -347,6 +334,60 @@ public class FindPinFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    private void updateDatabase(){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        db.collection("high_scores").document("master").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Map<String, Object> map = task.getResult().getData();
+                    Map<String, Object> newScores = new HashMap<>();
+
+                    for (int i = 0; i < 5; i++) {
+                        ArrayList<Object> l = (ArrayList<Object>) map.get("" + i);
+
+                        if((long) l.get(1) < points){
+
+                            ArrayList<Object> temp = new ArrayList<>();
+                            ArrayList<Object> temp2 = new ArrayList<>();
+
+                            temp.add(mAuth.getCurrentUser().getDisplayName());
+                            temp.add(points);
+                            newScores.put(""+i, temp);
+
+                            temp2.add(l.get(0));
+                            temp2.add(l.get(1));
+
+                            for(int j = i + 1; j < 5; j++){
+                                ArrayList<Object> l2 = (ArrayList<Object>) map.get("" + j);
+                                newScores.put(""+j, temp2);
+                                temp2 = new ArrayList<>();
+                                temp2.add(l2.get(0));
+                                temp2.add(l2.get(1));
+                            }
+                            break;
+                        } else {
+                            ArrayList<Object> temp = new ArrayList<>();
+                            temp.add(l.get(0));
+                            temp.add(l.get(1));
+                            newScores.put(""+i,temp);
+                        }
+
+                    }
+
+                    db.collection("high_scores").document("master").set(newScores).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Log.i(TAG, "Successfully added my score!");
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private class getAllPins extends AsyncTask<Void, Void, Void> {

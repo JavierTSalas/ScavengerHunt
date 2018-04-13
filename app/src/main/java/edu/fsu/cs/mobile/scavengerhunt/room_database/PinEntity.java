@@ -102,5 +102,23 @@ public class PinEntity {
         return description;
     }
 
+    /*
+        This should work to add any pin we want on the map, Just gotta get with Jaiver probably
+        to understand if we can come up with default things for the pins for the PinEntity function
+        to be simple
+    */
+/*
+    public static PinEntity[] populateData() {
+        return new PinEntity[] {
+                new PinEntity(255,15, 30.445906,-84.299362,548,"","","Love Building"),
+                new PinEntity(255,15, 30.438975,-84.303544,548,"","","Doak Cambell Stadium"),
+                new PinEntity(255,15, 30.443845,-84.298055,548,"","","Intergration Statue"),
+                new PinEntity(255,15, 30.445031,-84.300000,548,"","","Dirac Science Library"),
+                new PinEntity(255,15, 30.445862,-84.301293,548,"","","Keen Building"),
+                new PinEntity(255,15, 30.444578,-84.298415,548,"","","Bookstore"),
+                new PinEntity(255,15, 30.445494,-84.299762,548,"","","Carothers"),
+        };
+    }
 
+*/
 }
