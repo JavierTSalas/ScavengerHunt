@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -244,6 +245,13 @@ public class PlacePinFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             googleMap.addMarker(mapOptions);
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapOptions.getPosition(), 15));
+
+            googleMap.addMarker(new MarkerOptions()
+            .position(new LatLng(30.462352,-84.315132))
+            .title("testing placement"));
+
+            Toast.makeText(getActivity(), "This is my Toast message!",
+                    Toast.LENGTH_LONG).show();
             super.onPostExecute(aVoid);
         }
     }
