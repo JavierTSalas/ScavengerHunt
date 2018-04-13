@@ -1,0 +1,189 @@
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+
+
+var serviceAccount = require('../ScavengerHunt-69150ce670a9.json');
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://amiable-raceway-198015.firebaseio.com'
+});
+
+
+
+
+// Get the Firestore client for the default app
+var db = admin.firestore();
+
+// Start writing Firebase Functions
+// https://firebase.google.com/docs/functions/typescript
+exports.extractFromAuthToTable = functions.auth.user().onCreate((user) => {
+    const nestedData = user; // The Firebase user.
+    const _ID = nestedData.uid;
+    const email = nestedData.email;
+
+    return admin.auth().getUser(_ID)
+        .then(function (userRecord) {
+            console.log("Successfully fetched user data:", userRecord.toJSON());
+            return writeUserData(_ID, userRecord.displayName , email);
+        })
+        .catch(function (error) {
+            console.log("Error fetching user data:", error);
+        });
+
+
+});
+
+function writeUserData(userId, name, email) {
+
+    var data = {
+        '_ID': userId,
+        'displayName': name || "Anonymous",
+        'email': email,
+    };
+
+
+    // Create default document for FCM_tokens 
+    var fcm_data = {
+        device_ids: [""],
+        client_tokens: [""]
+    };
+
+    // Create default document for FCM_tokens 
+    var friend_data = {
+        ID_List: [""],
+        new_friend: ""
+    };
+
+
+    // Get a new write batch
+    var batch = db.batch();
+
+
+    // Default FCM data
+    var FCM_Ref = db.collection('FCM_tokens').doc(userId);
+    batch.set(FCM_Ref, fcm_data);
+
+
+    // Default friend data
+    var Friend_Ref = db.collection('friends').doc(userId);
+    batch.set(Friend_Ref, friend_data);
+
+
+    // Update the document relavent to our user
+    // Merge since we might have a race condition on the display being written in app and this function executing
+    var User_Ref = db.collection('users').doc(userId);
+    batch.set(User_Ref, data, { merge: true });
+
+
+    // Commit the batch
+    return batch.commit().then(function () {
+        console.log("Batch written successful!");
+        // ...
+    });
+
+}
+
+// Update any changes to the relavent document
+exports.onNewFriends = functions.firestore
+    .document('friends/{uid}')
+    .onUpdate((change, context) => {
+
+        const newValue = change.after.data();
+        const new_friend = newValue.new_friend;
+
+        console.log("New friend from " + context.params.uid + "  to  " + new_friend)
+        // If we do have a string 
+        if (new_friend) {
+            var friends_list = newValue.ID_List;
+
+            // Remove the empty element if needed
+            var index = friends_list.indexOf("");
+            if (index > -1) {
+                friends_list.splice(index, 1);
+            }
+
+            friends_list.push(new_friend);
+            return writeFriendsListAndSendNotifcation(context.params.uid, friends_list, new_friend);
+        }
+        else {
+            return null;
+        }
+    });
+
+
+
+function writeFriendsListAndSendNotifcation(userId, friends_list, new_friend) {
+
+    console.log("writeFriendsListAndSendNotifcation");
+    sendNotifcation(userId, new_friend);
+
+    var data = {
+        'ID_List': friends_list,
+        'new_friend': "",
+    };
+
+    // Update the document relavent to our user
+    // Merge since we might have a race condition on the display being written in app and this function executing
+    console.log("Saving user data ID_List=" + data.ID_List + " new_friend=" + new_friend);
+    return db.collection('friends').doc(userId).set(data, { merge: true });
+
+}
+
+function sendNotifcation(id_from, id_to) {
+
+
+    console.log("Begining notifcation from " + id_from + " to " + id_to);
+
+    const promises = [];
+
+    if (id_from == id_to) {
+        //if sender is receiver, don't send notification
+        return null;
+    } else {
+        const docRef = db.collection("FCM_tokens").doc(id_to);
+        docRef.get().then(doc => {
+            if (!doc.exists) {
+                console.log('User does not have any FCM_tokens! userid=' + id_to);
+                return null;
+            } else {
+                console.log('Document data:', doc.data());
+
+                const tokens_list = doc.get("client_tokens");
+
+                // Define a condition which will send to devices which are subscribed
+                // to either the Google stock or the tech industry topics.
+
+                tokens_list.forEach(element => {
+                    // See documentation on defining a message payload.
+                    var message = {
+                        notification: {
+                            title: 'New friend notification',
+                            body: 'notifying ' + id_to + ' from ' + id_from
+                        },
+                        token: element
+                    };
+
+                    // Send a message to devices subscribed to the combination of topics
+                    // specified by the provided condition.
+                    return admin.messaging().send(message)
+                        .then((response) => {
+                            // Response is a message ID string.
+                            console.log('Successfully sent message:', response);
+                        })
+                        .catch((error) => {
+                            console.log('Error sending message:', error);
+                        });
+
+
+                });
+
+            }
+        })
+            .catch(err => {
+                console.log('Error getting document', err);
+            });
+
+    }
+}
+
