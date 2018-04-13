@@ -89,42 +89,6 @@ public class FindPinFragment extends Fragment {
         mMapView = (MapView) view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        //Setting up list view and adapter
-        //Templist to figure out why listview isn't showing above map
-        String[] menuItems = {"Do somthin!", "Anotherthing!","teehee"};
-
-        final ListView listView = (ListView) view.findViewById(R.id.hintList);
-
-        ArrayAdapter<String> pinlist = new ArrayAdapter<String>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                menuItems
-        );
-        listView.setAdapter(pinlist);
-
-
-        mMapView.onResume(); // needed to get the map to display immediately
-
-        //May bring in stuff from database, but haven't got the listview to show
-       /* ArrayAdapter<MarkerOptions> pinlist = new ArrayAdapter<MarkerOptions>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                allPinMO
-
-        );*/
-
-
-        //Button to show listview
-        Button hintButton = (Button) view.findViewById(R.id.HintButton);
-        hintButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity().getApplicationContext(), "Temp", Toast.LENGTH_LONG).show();
-
-                listView.setVisibility(listView.isShown() ? View.GONE : View.VISIBLE);
-            }
-        });
-
 
 
         try {
