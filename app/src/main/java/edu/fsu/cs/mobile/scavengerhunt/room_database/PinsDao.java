@@ -35,6 +35,7 @@ public interface PinsDao {
             "(longitude = :lon)")
     List<PinEntity> getPinFromLatLon(long lat, long lon);
 
+    //Will be used in PinDatabaseCreator.java to call populateData()
     @Insert
     void insertAll(PinEntity... pinEntities);
 

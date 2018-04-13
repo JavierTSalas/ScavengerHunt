@@ -81,6 +81,23 @@ public class PinDatabaseCreator {
                     PinDatabase db = Room.databaseBuilder(context.getApplicationContext(),
                             PinDatabase.class, PinDatabase.DATABASE_NAME).build();
 
+                            //Code for calling populate data basically,
+                            // needs to somehow be put into the code right above
+                            /*
+                                @Override
+                                public void onCreate(@NonNull SuipportSQLiteDatabase db) {
+                                    super.onCreate(db);
+                                    Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            getInstance(context).dataDao().insertAll(PinEntity.populateData())
+                                            }
+                                    };
+                                 }
+
+
+                             */
+
                     // Add some data to the database
                     // SchoolDatabaseInitUtil.initializeDb(db, context);
                     Log.d(TAG, "DB was populated in thread " + Thread.currentThread().getName());

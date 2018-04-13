@@ -246,12 +246,15 @@ public class PlacePinFragment extends Fragment {
             googleMap.addMarker(mapOptions);
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapOptions.getPosition(), 15));
 
-            googleMap.addMarker(new MarkerOptions()
+            //This will probably be the spot where making random pins will probably be the easiest
+
+           /* googleMap.addMarker(new MarkerOptions()
             .position(new LatLng(30.462352,-84.315132))
             .title("testing placement"));
 
             Toast.makeText(getActivity(), "This is my Toast message!",
-                    Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();*/
+
             super.onPostExecute(aVoid);
         }
     }
