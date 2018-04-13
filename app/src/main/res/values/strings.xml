@@ -25,6 +25,7 @@
     <string name="place_pins">Place pins</string>
     <string name="messaging">Messaging</string>
     <string name="friends">Friends</string>
+    <string name="leaderboard">Leaderboard</string>
     <string name="Open">Open</string>
     <string name="Close">Close</string>
 </resources>

@@ -30,6 +30,7 @@ import java.util.Map;
 
 import edu.fsu.cs.mobile.scavengerhunt.fragments.DatabaseTestFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.FindPinFragment;
+import edu.fsu.cs.mobile.scavengerhunt.fragments.LeaderboardFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.LoginFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.PlacePinFragment;
 import edu.fsu.cs.mobile.scavengerhunt.util.PrefManager;
@@ -94,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(MainActivity.this, "Messaging", Toast.LENGTH_SHORT).show();
                     case R.id.friends_list:
                         Toast.makeText(MainActivity.this, "Friends list", Toast.LENGTH_SHORT).show();
+                    case R.id.leaderboard:
+                        inflateLeaderboard();
                     default:
                         return true;
                 }
@@ -219,6 +222,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PlacePinFragment fragment = new PlacePinFragment();
         trans.replace(R.id.frame, fragment, PlacePinFragment.FRAGMENT_TAG);
         trans.addToBackStack("Place");
+        trans.commit();
+    }
+
+    private void inflateLeaderboard(){
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        LeaderboardFragment fragment = new LeaderboardFragment();
+        trans.replace(R.id.frame, fragment, LeaderboardFragment.FRAGMENT_TAG);
+        trans.addToBackStack("Leader");
         trans.commit();
     }
 
