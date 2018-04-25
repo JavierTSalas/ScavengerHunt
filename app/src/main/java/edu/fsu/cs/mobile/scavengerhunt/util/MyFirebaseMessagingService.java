@@ -1,4 +1,4 @@
-package edu.fsu.cs.mobile.scavengerhunt;
+package edu.fsu.cs.mobile.scavengerhunt.util;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -13,6 +13,9 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import edu.fsu.cs.mobile.scavengerhunt.MainActivity;
+import edu.fsu.cs.mobile.scavengerhunt.R;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = MyFirebaseMessagingService.class.getCanonicalName();

@@ -30,10 +30,10 @@ import java.util.Map;
 
 import edu.fsu.cs.mobile.scavengerhunt.fragments.DatabaseTestFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.FindPinFragment;
+import edu.fsu.cs.mobile.scavengerhunt.fragments.FriendsListFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.LeaderboardFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.LoginFragment;
 import edu.fsu.cs.mobile.scavengerhunt.fragments.PlacePinFragment;
-import edu.fsu.cs.mobile.scavengerhunt.util.PrefManager;
 
 /*
     Main Screen that the user interacts with
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        dl = (DrawerLayout) findViewById(R.id.activity_main);
+        dl = findViewById(R.id.activity_main);
         t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close);
 
         dl.addDrawerListener(t);
@@ -82,11 +82,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        nv = (NavigationView) findViewById(R.id.nv);
+        nv = findViewById(R.id.nv);
         nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
+                dl.closeDrawers();
                 switch (id) {
                     case R.id.find:
                         inflateFindFragment();
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(MainActivity.this, "Messaging", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.friends_list:
-                        Toast.makeText(MainActivity.this, "Friends list", Toast.LENGTH_SHORT).show();
+                        inflateFriendsList();
                         break;
                     case R.id.leader_board:
                         inflateLeaderboard();
@@ -236,12 +237,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         trans.commit();
     }
 
+    private void inflateFriendsList() {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        FriendsListFragment fragment = new FriendsListFragment();
+        trans.replace(R.id.frame, fragment, FriendsListFragment.FRAGMENT_TAG);
+        trans.addToBackStack("Friends");
+        trans.commit();
+    }
+
     // Inflates the fragment for testing database stuff
     private void enterSuperSecretDevDebugMode() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction trans = manager.beginTransaction();
         DatabaseTestFragment fragment = new DatabaseTestFragment();
-        trans.add(R.id.frame, fragment, DatabaseTestFragment.FRAGMENT_TAG);
+        trans.replace(R.id.frame, fragment, DatabaseTestFragment.FRAGMENT_TAG);
         trans.commit();
     }
 }
