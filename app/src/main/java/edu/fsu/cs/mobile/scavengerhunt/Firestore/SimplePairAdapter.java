@@ -15,10 +15,10 @@ import edu.fsu.cs.mobile.scavengerhunt.R;
 
 
 // https://github.com/MahmoudAlyuDeen/FirebaseIM/tree/3fafaa07495e161840afc7c547c3d1b83538e770
-public class PlainAdapter extends RecyclerView.Adapter<PlainAdapter.MessageViewHolder> {
-    public static final String TAG = PlainAdapter.class.getCanonicalName();
+public class SimplePairAdapter extends RecyclerView.Adapter<SimplePairAdapter.MessageViewHolder> {
+    public static final String TAG = SimplePairAdapter.class.getCanonicalName();
 
-    public PlainAdapter(ArrayList<Pair<String, String>> mList, onUserClickFriend Listener) {
+    public SimplePairAdapter(ArrayList<Pair<String, String>> mList, onUserClickFriend Listener) {
         super();
         this.mList = mList;
         this.mListener = Listener;
