@@ -21,10 +21,10 @@ public interface PinsDao {
 
     // Use this one
     @Query("SELECT * FROM pins WHERE " +
-            "(latitude between :latMin AND :latMax)" +
+            "(latitude BETWEEN :latMin AND :latMax)" +
             "AND" +
-            "(longitude between :lonMin AND :lonMax)")
-    List<PinEntity> getPinsInsideBoundingBox(long latMin, long latMax , long lonMin, long lonMax);
+            "(longitude BETWEEN :lonMin AND :lonMax)")
+    List<PinEntity> getPinsInsideBoundingBox(double latMin, double latMax , double lonMin, double lonMax);
 
     @Query("SELECT pinID FROM pins ORDER BY pinID DESC LIMIT 1")
     long getPinIDOfLastEntry();

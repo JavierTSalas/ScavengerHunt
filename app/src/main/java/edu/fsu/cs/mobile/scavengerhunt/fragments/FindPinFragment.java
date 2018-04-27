@@ -8,11 +8,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -43,12 +46,32 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -57,10 +80,13 @@ import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
 import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
+import edu.fsu.cs.mobile.scavengerhunt.util.PlaceJSON;
 
 public class FindPinFragment extends Fragment {
     private static final String TAG = FindPinFragment.class.getCanonicalName();
     public static final String FRAGMENT_TAG = "Find_Fragment";
+
+    private String type = "park";
 
     private long points;
 
@@ -70,15 +96,20 @@ public class FindPinFragment extends Fragment {
     private GoogleMap googleMap;
     private ArrayList<MarkerOptions> allPinMO = new ArrayList<MarkerOptions>();
     private ArrayList<PinEntity> allPin = new ArrayList<PinEntity>();
+    private ArrayList<PinEntity> pinHistory = new ArrayList<>();
+    private HashMap<String, Integer> pHistory = new HashMap<>();
+    private Location lastLoc = null;
+
+
     private boolean mLocationPermissionGranted = false;
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1; // I don't think the number matters?
     private double lat = Long.MAX_VALUE;
     private double lng = Long.MAX_VALUE;
+    private Bitmap iBitmap = null;
     private int pinSessionCounter = 0;
+    final private float HOT_DISTANCE = 60;
 
     final private float FIND_DISTANCE = 50;
-
-    final private float HOT_DISTANCE = 60;
     final private float WARM_DISTANCE = 90;
     final private float COOL_DISTANCE = 150;
 
@@ -100,8 +131,6 @@ public class FindPinFragment extends Fragment {
         mMapView.onCreate(savedInstanceState);
 
         points = 0;
-
-
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -181,12 +210,18 @@ public class FindPinFragment extends Fragment {
             CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLocation).zoom(12).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-
             // Set our location listener now that we have permission
             LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+
             LocationListener locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    if(lastLoc == null || lastLoc.distanceTo(location) > 500){
+                        lastLoc = location;
+                        new getAllPins(getActivity().getApplicationContext(), new LatLng(location.getLatitude(), location.getLongitude())).execute();
+                    }
+
                     lat = location.getLatitude();
                     lng = location.getLongitude();
                     float dist = findClosestPin(location);
@@ -223,7 +258,6 @@ public class FindPinFragment extends Fragment {
             };
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
 
-            (new getAllPins(getActivity().getApplicationContext())).execute();
 
         } else {
             getLocationPermission();
@@ -265,6 +299,7 @@ public class FindPinFragment extends Fragment {
                         //Adds a marker for this to the map
                         googleMap.addMarker(allPinMO.get(i));
                         allPinMO.remove(i);
+                        allPin.remove(i);
 
                         PinFound();
                         break; //For some reason looped 5 times, guess it is checking stuff?
@@ -288,6 +323,20 @@ public class FindPinFragment extends Fragment {
             return small;
         }
         return -1;
+    }
+
+    //Followed the following
+    //https://stackoverflow.com/questions/41799824/google-map-to-find-current-location-and-nearby-places
+    //https://stackoverflow.com/questions/30161395/im-trying-to-search-nearby-places-such-as-banks-restaurants-atms-inside-the-d
+    public StringBuilder sb(){
+        StringBuilder googlePlacesUrl =
+                new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlacesUrl.append("location=").append(lat).append(",").append(lng);
+        googlePlacesUrl.append("&radius=").append(750);
+        googlePlacesUrl.append("&types=").append(type);
+        googlePlacesUrl.append("&key=" + getString(R.string.google_places_key));
+
+        return googlePlacesUrl;
     }
 
 
@@ -395,10 +444,12 @@ public class FindPinFragment extends Fragment {
         ArrayList<MarkerOptions> allMO = new ArrayList<MarkerOptions>();
         ArrayList<PinEntity> allPins = new ArrayList<PinEntity>();
         final PinDatabaseCreator creator;
+        LatLng curLoc;
 
-        getAllPins(Context mContext) {
+        getAllPins(Context mContext, LatLng curLoc) {
             this.mContext = mContext;
             creator = PinDatabaseCreator.getInstance(mContext);
+            this.curLoc = curLoc;
         }
 
         @Override
@@ -414,24 +465,225 @@ public class FindPinFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             PinDatabase db = creator.getDatabase();
-
+            /*
+            allPins = (ArrayList<PinEntity>) db.PinsDao()
+                        .getPinsInsideBoundingBox(
+                          curLoc.latitude - 1000,
+                          curLoc.longitude - 1000,
+                          curLoc.latitude + 1000,
+                          curLoc.longitude + 1000
+                        );
+            */
             allPins = (ArrayList<PinEntity>) db.PinsDao().getAllPins();
+
+            Log.i("Bo", "Pins Size " + allPins.size());
+            Log.i("Bo", "Location " + curLoc.latitude + "" + curLoc.longitude);
+
             for(int i = 0; i < allPins.size(); i++){
                 allMO.add(MapOptionsFactory.convertToMO(mContext, allPins.get(i)));
             }
 
-
+            StringBuilder sbValue = new StringBuilder(sb());
+            PlacesTask placesTask = new PlacesTask(mContext);
+            placesTask.execute(sbValue.toString());
 
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
+
+
             for(int i = 0; i < allMO.size(); i++){
-                allPinMO.add(allMO.get(i));
-                allPin.add(allPins.get((i)));
+                if(pHistory.get(allPins.get(i).getDescription()) == null){
+                    allPinMO.add(allMO.get(i));
+                    allPin.add(allPins.get((i)));
+                }
             }
+
+
             super.onPostExecute(aVoid);
+        }
+    }
+
+    private class PlacesTask extends AsyncTask<String, Integer, String>{
+        String val = null;
+        Context mContext;
+
+        PlacesTask(Context mContext){
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected String doInBackground(String... url) {
+            try {
+                val = getUrl(url[0]);
+            } catch (Exception e) {
+                Log.i("Uh Oh", e.toString());
+            }
+            return val;
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            ParserTask parserTask = new ParserTask(mContext);
+
+            parserTask.execute(result);
+        }
+
+        protected String getUrl(String strUrl) throws IOException {
+            String data = "";
+            InputStream iStream = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL(strUrl);
+
+                //Creates httpurlconnection based on the inputted url
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                //Connects to this url
+                urlConnection.connect();
+
+                // pulls the data from this url
+                iStream = urlConnection.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+                StringBuffer sb = new StringBuffer();
+
+                String line = "";
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                data = sb.toString();
+
+                br.close();
+
+            } catch (Exception e) {
+                Log.d("Uh Oh", e.toString());
+            } finally {
+                iStream.close();
+                urlConnection.disconnect();
+            }
+            return data;
+        }
+    }
+
+    private class ParserTask extends AsyncTask<String, Integer, List<HashMap<String, String>>> {
+
+        JSONObject jObject;
+        Context mContext;
+
+        ParserTask(Context context){
+            mContext = context;
+        }
+
+        @Override
+        protected List<HashMap<String, String>> doInBackground(String... jsonData) {
+
+            List<HashMap<String, String>> places = null;
+            PlaceJSON placeJson = new PlaceJSON();
+            Log.i("Booooooooooo", jsonData[0]);
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+
+                places = placeJson.parse(jObject);
+
+            } catch (Exception e) {
+                Log.d("Exception", e.toString());
+            }
+            Log.i("Booooooo", places.size() + "");
+            return places;
+        }
+
+        @Override
+        protected void onPostExecute(List<HashMap<String, String>> list) {
+            Log.i("Booogoogg", "I made it here, List Size: " + list.size());
+            for (int i = 0; i < list.size(); i++) {
+                Log.i("Booogoogg", String.valueOf(i));
+                // Getting a place from the places list
+                HashMap<String, String> hmPlace = list.get(i);
+
+                //Pull location
+                double tempLat = Double.parseDouble(hmPlace.get("lat"));
+                double tempLng = Double.parseDouble(hmPlace.get("lng"));
+
+                //Pull pin's name
+                String name = hmPlace.get("place_name");
+
+                int tempColor = Color.BLACK;
+
+                Log.d("Map", "place: " + name);
+
+                LatLng latLng = new LatLng(tempLat, tempLng);
+
+                String imageUrl = hmPlace.get("imageUrl");
+                Log.i("Boooooo", "Image URL is " + imageUrl);
+
+                Drawable d = getResources().getDrawable(R.drawable.default_pin);
+
+                Bitmap iconBitmap= ((BitmapDrawable) d).getBitmap();
+
+                byte[] BLOB = null;
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+                iconBitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+                BLOB = outputStream.toByteArray();
+
+                PinEntity pe = new PinEntity(
+                        0,
+                        0, // For later use, now just 0
+                        tempLat,
+                        tempLng,
+                        tempColor,
+                        BLOB,
+                        false,
+                        name
+                );
+
+                MarkerOptions mo = MapOptionsFactory.convertToMO(mContext, pe);
+
+                boolean place = true;
+
+                if(pHistory.get(pe.getDescription()) != null){
+                    place = false;
+                }
+
+                if(place){
+                    allPin.add(pe);
+                    allPinMO.add(mo);
+                    pHistory.put(pe.getDescription(), 1);
+                    Log.i("Added Location", pe.getDescription());
+                }
+
+            }
+        }
+    }
+
+    private class IconTask extends AsyncTask<String, Void, Bitmap>{
+        HttpURLConnection connection;
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            try {
+                URL url = new URL(strings[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                return BitmapFactory.decodeStream(input);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            } finally {
+                connection.disconnect();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap b){
+            iBitmap = b;
+            Log.i("Boooooooooo", "Set ibitmap to " + b.toString());
         }
     }
 }
