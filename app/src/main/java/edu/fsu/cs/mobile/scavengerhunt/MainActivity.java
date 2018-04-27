@@ -104,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case R.id.leader_board:
                         inflateLeaderboard();
                         break;
+                    case R.id.logout:
+                        FirebaseAuth.getInstance().signOut();
+                        inflateFirebaseLogin();
+                        break;
                     default:
                         return true;
 
