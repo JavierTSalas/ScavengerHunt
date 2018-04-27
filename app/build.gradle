@@ -72,6 +72,9 @@ dependencies {
 
     // Lottie animations :D
     implementation 'com.airbnb.android:lottie:2.5.4'
+
+    //Google Places
+    implementation 'com.google.android.gms:play-services-places:12.0.1'
 }
 
 // Add to the bottom of the file
