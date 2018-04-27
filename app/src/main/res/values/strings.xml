@@ -29,4 +29,5 @@
     <string name="Open">Open</string>
     <string name="Close">Close</string>
     <string name="empty_list_message">We couldn\'t find your friends.\n Use the box below to add them to your friends list.</string>
+    <string name="empty_chat_message">Break the ice! Send a message with the box below</string>
 </resources>

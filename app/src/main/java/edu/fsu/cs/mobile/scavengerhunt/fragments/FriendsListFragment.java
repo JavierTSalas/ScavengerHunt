@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,12 +29,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.fsu.cs.mobile.scavengerhunt.Firestore.PlainAdapter;
+import edu.fsu.cs.mobile.scavengerhunt.Firestore.SimplePairAdapter;
 import edu.fsu.cs.mobile.scavengerhunt.R;
 
 import static android.view.animation.Animation.INFINITE;
 
-public class FriendsListFragment extends Fragment implements PlainAdapter.onUserClickFriend {
+public class FriendsListFragment extends Fragment implements SimplePairAdapter.onUserClickFriend {
     EditText etUid, etMessage;
     RecyclerView usersRecycler;
     TextView tvReceiver;
@@ -43,7 +44,7 @@ public class FriendsListFragment extends Fragment implements PlainAdapter.onUser
     private static Query sChatQuery;
     public static final String FRAGMENT_TAG = "Friends List";
     public static final String TAG = "Friends";
-    public PlainAdapter adapter = newAdapter();
+    public SimplePairAdapter adapter = newAdapter();
     private String userId;
     private TextView tvEmptyList;
     private LottieAnimationView lottieAnimation;
@@ -55,9 +56,13 @@ public class FriendsListFragment extends Fragment implements PlainAdapter.onUser
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends_list, container, false);
         mAuth = FirebaseAuth.getInstance();
-        etUid = view.findViewById(R.id.user_id_edit);
+        etUid = view.findViewById(R.id.friend_id_text);
         userId = mAuth.getCurrentUser().getUid();
         etUid.setText(userId);
+        tvReceiver = view.findViewById(R.id.RecieverIndicatorText);
+        usersRecycler = view.findViewById(R.id.friends_recycler);
+        tvEmptyList = view.findViewById(R.id.empty_list_text);
+        lottieAnimation = view.findViewById(R.id.lottieAnimationView);
         /* friends/id/pendingFriends         */
         sChatQuery = Friend_ListCollection.document(userId).collection("pendingFriends");
         sChatQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -94,13 +99,8 @@ public class FriendsListFragment extends Fragment implements PlainAdapter.onUser
                 Log.d(TAG, "UI Updated!");
             }
         });
-        tvReceiver = view.findViewById(R.id.RecieverIndicatorText);
-        usersRecycler = view.findViewById(R.id.friends_recycler);
+
         initializeUsersRecycler();
-
-        tvEmptyList = view.findViewById(R.id.empty_list_text);
-        lottieAnimation = view.findViewById(R.id.lottieAnimationView);
-
         toggleEmptyListState(false);
 
         return view;
@@ -137,12 +137,21 @@ public class FriendsListFragment extends Fragment implements PlainAdapter.onUser
         usersRecycler.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
     }
 
-    protected PlainAdapter newAdapter() {
-        return new PlainAdapter(new ArrayList<Pair<String, String>>(), this);
+    protected SimplePairAdapter newAdapter() {
+        return new SimplePairAdapter(new ArrayList<Pair<String, String>>(), this);
     }
 
     @Override
     public void onItemClick(Pair<String, String> item) {
-        Toast.makeText(getActivity().getApplicationContext(), item.first + "____" + item.second, Toast.LENGTH_SHORT).show();
+        inflateUserFragment(item.first);
+    }
+
+    private void inflateUserFragment(String userId) {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FriendChatFragment fragment = FriendChatFragment.newInstance(userId);
+        FragmentTransaction trans = manager.beginTransaction();
+        trans.replace(R.id.frame, fragment, FriendChatFragment.FRAGMENT_TAG);
+        trans.addToBackStack(FriendChatFragment.FRAGMENT_TAG);
+        trans.commit();
     }
 }
