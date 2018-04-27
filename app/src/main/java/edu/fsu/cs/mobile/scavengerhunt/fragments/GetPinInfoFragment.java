@@ -105,7 +105,6 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
-                Toast.makeText(getActivity().getApplicationContext(), "Map ready!", Toast.LENGTH_LONG).show();
                 clearImagePreview();
                 googleMap.addMarker(generateMarker());
             }
