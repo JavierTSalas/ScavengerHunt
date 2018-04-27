@@ -11,5 +11,7 @@
         android:title="@string/friends"/>
     <item android:id="@+id/leader_board"
         android:title="@string/leaderboard"/>
+    <item android:id="@+id/logout"
+        android:title="@string/logout"/>
 
 </menu>

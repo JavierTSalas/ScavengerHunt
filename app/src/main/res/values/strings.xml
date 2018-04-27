@@ -6,7 +6,7 @@
     <string name="main_activity_find">Find Pins</string>
     <string name="fragment_database_test_title">Total Entries:</string>
     <string name="fragment_database_subtext_text">VV Query Result VV</string>
-
+    <string name="google_places_key">AIzaSyCXvcFE44Cfksa914N-R_m3GqygPMlEeHk</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -29,4 +29,5 @@
     <string name="Open">Open</string>
     <string name="Close">Close</string>
     <string name="empty_list_message">We couldn\'t find your friends.\n Use the box below to add them to your friends list.</string>
+    <string name="logout">Logout</string>
 </resources>
