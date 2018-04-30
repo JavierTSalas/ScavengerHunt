@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScavengerHunt</string>
+    <string name="app_name">Scavenger Hunt</string>
     <string name="title_activity_maps">Map</string>
     <string name="main_activity_title">Scavenger Hunt</string>
     <string name="main_activity_place">Place Pins</string>
@@ -7,9 +7,6 @@
     <string name="fragment_database_test_title">Total Entries:</string>
     <string name="fragment_database_subtext_text">VV Query Result VV</string>
     <string name="google_places_key">AIzaSyD8OfXGVqKN78HoGnl4LQaGjwqKHM6rh3c</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="register_login_text">Login Screen</string>
     <string name="loginNameField">Display name</string>
     <string name="loginEmailField">Email</string>

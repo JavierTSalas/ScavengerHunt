@@ -180,7 +180,7 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
         FragmentManager fm = getActivity().getSupportFragmentManager();
         ColorPickFragment colorPickFragment = new ColorPickFragment();
         colorPickFragment.setTargetFragment(this, ColorPickFragment.DIALOG_FRAGMENT_REQUEST);
-        ((DialogFragment) colorPickFragment).show(fm, ColorPickFragment.FRAGMENT_TAG);
+        colorPickFragment.show(fm, ColorPickFragment.FRAGMENT_TAG);
 
 
     }

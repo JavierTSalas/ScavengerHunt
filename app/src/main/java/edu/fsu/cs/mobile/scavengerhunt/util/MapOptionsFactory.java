@@ -27,7 +27,7 @@ public class MapOptionsFactory {
     // https://stackoverflow.com/questions/14811579/how-to-create-a-custom-shaped-bitmap-marker-with-android-map-api-v2
     public static Bitmap getMarkerBitmapFromView(Context mContext, Bitmap bitmap, int color) {
         View customMarkerView = ((LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_pin, null);
-        CircleImageView markerImageView = (CircleImageView) customMarkerView.findViewById(R.id.profile_image);
+        CircleImageView markerImageView = customMarkerView.findViewById(R.id.profile_image);
         markerImageView.setImageBitmap(bitmap);
         markerImageView.setBorderColor(color);
         customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);

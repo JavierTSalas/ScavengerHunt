@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -23,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -57,7 +55,7 @@ public class PlacePinFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_place, container, false);
-        mMapView = (MapView) view.findViewById(R.id.mapView);
+        mMapView = view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
         mMapView.onResume(); // needed to get the map to display immediately
@@ -122,7 +120,7 @@ public class PlacePinFragment extends Fragment {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         GetPinInfoFragment dialogFragment = GetPinInfoFragment.newInstance(generateLatLong());
         dialogFragment.setTargetFragment(this, GetPinInfoFragment.DIALOG_FRAGMENT_REQUEST);
-        ((DialogFragment) dialogFragment).show(fm, GetPinInfoFragment.FRAGMENT_TAG);
+        dialogFragment.show(fm, GetPinInfoFragment.FRAGMENT_TAG);
     }
 
     private LatLng generateLatLong() {

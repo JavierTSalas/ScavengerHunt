@@ -15,7 +15,6 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,9 +29,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,15 +40,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -123,11 +111,11 @@ public class FindPinFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_find, container, false);
 
-        mTemperature = (TextView) view.findViewById(R.id.temp_id);
+        mTemperature = view.findViewById(R.id.temp_id);
 
-        mNearPin = (FloatingActionButton) view.findViewById(R.id.near_button);
+        mNearPin = view.findViewById(R.id.near_button);
 
-        mMapView = (MapView) view.findViewById(R.id.mapView);
+        mMapView = view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
         points = 0;
@@ -334,7 +322,7 @@ public class FindPinFragment extends Fragment {
         googlePlacesUrl.append("location=").append(lat).append(",").append(lng);
         googlePlacesUrl.append("&radius=").append(750);
         googlePlacesUrl.append("&types=").append(type);
-        googlePlacesUrl.append("&key=" + getString(R.string.google_places_key));
+        googlePlacesUrl.append("&key=").append(getString(R.string.google_places_key));
 
         return googlePlacesUrl;
     }
@@ -549,7 +537,7 @@ public class FindPinFragment extends Fragment {
                 BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
                 StringBuffer sb = new StringBuffer();
 
-                String line = "";
+                String line;
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
@@ -624,7 +612,7 @@ public class FindPinFragment extends Fragment {
 
                 Bitmap iconBitmap= ((BitmapDrawable) d).getBitmap();
 
-                byte[] BLOB = null;
+                byte[] BLOB;
 
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
