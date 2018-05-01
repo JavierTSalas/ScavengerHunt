@@ -8,7 +8,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andrognito.flashbar.Flashbar;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -82,9 +82,7 @@ public class FindPinFragment extends Fragment {
     TextView mTemperature;
     FloatingActionButton mNearPin;
     private GoogleMap googleMap;
-    private ArrayList<MarkerOptions> allPinMO = new ArrayList<MarkerOptions>();
-    private ArrayList<PinEntity> allPin = new ArrayList<PinEntity>();
-    private ArrayList<PinEntity> pinHistory = new ArrayList<>();
+    private HashMap<String, PinWrapper> pinObjs = new HashMap<>();
     private HashMap<String, Integer> pHistory = new HashMap<>();
     private Location lastLoc = null;
 
@@ -93,7 +91,6 @@ public class FindPinFragment extends Fragment {
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1; // I don't think the number matters?
     private double lat = Long.MAX_VALUE;
     private double lng = Long.MAX_VALUE;
-    private Bitmap iBitmap = null;
     private int pinSessionCounter = 0;
     final private float HOT_DISTANCE = 60;
 
@@ -253,12 +250,26 @@ public class FindPinFragment extends Fragment {
     }
 
     //Counting each pin found during one session.
-    private void PinFound(){
+    private void PinFound(String name){
         pinSessionCounter++;
 
         points += 100;
 
-        Toast.makeText(getActivity().getApplicationContext(), "Pins found this session: " + pinSessionCounter , Toast.LENGTH_LONG).show();
+        if(isAdded()){
+            Toast.makeText(getActivity().getApplicationContext(), "Pins found this session: " + pinSessionCounter , Toast.LENGTH_LONG).show();
+
+            /*
+            Flashbar flashbar = new Flashbar.Builder(getActivity())
+                    .gravity(Flashbar.Gravity.TOP)
+                    .title("Pin Found!")
+                    .message("You found a new pin!\n" + "Pin name: " + name + "\nCurrent Score: " + points)
+                    .backgroundColor(R.color.colorPrimary)
+                    .build();
+
+            flashbar.show();
+            */
+
+        }
 
 
     }
@@ -266,48 +277,46 @@ public class FindPinFragment extends Fragment {
 
     //Finds the closest pin, but makes pins that are too close visible
     private float findClosestPin(Location mLoc){
-        if(allPinMO.size() > 0) {
-            Location t = new Location("First Pin");
-            t.setLatitude(allPinMO.get(0).getPosition().latitude);
-            t.setLongitude(allPinMO.get(0).getPosition().longitude);
-
+        if(pinObjs.size() > 0) {
             //We are trying to find the smallest val, so we'll initialize it with the first one
             float small = -1;
-            for (int i = 1; i < allPinMO.size(); i++) {
-                Location temp = new Location("Pin " + i);
-                temp.setLatitude(allPinMO.get(i).getPosition().latitude);
-                temp.setLongitude(allPinMO.get(i).getPosition().longitude);
+            RoundedBitmapDrawable rounded = null;
 
-                if(mLoc.distanceTo(temp) <= small || mLoc.distanceTo(temp) <= FIND_DISTANCE || small < 0){
-                    if(mLoc.distanceTo(temp) <= FIND_DISTANCE){
-                        //Sets the nearest to null in the text and image
-                        small = -1;
-                        mNearPin.setImageDrawable(null);
+            for(String k : pinObjs.keySet()){
+                Location temp = new Location("Pin " + k);
+                temp.setLatitude(pinObjs.get(k).getMyPin().getLatitude());
+                temp.setLongitude(pinObjs.get(k).getMyPin().getLongitude());
 
-                        //Adds a marker for this to the map
-                        googleMap.addMarker(allPinMO.get(i));
-                        allPinMO.remove(i);
-                        allPin.remove(i);
+                if(!pinObjs.get(k).isPickedUp()){
+                    if(mLoc.distanceTo(temp) <= small || mLoc.distanceTo(temp) <= FIND_DISTANCE || small < 0){
+                        if(mLoc.distanceTo(temp) <= FIND_DISTANCE){
 
-                        PinFound();
-                        break; //For some reason looped 5 times, guess it is checking stuff?
+                            //Adds a marker for this to the map
+                            googleMap.addMarker(pinObjs.get(k).getMyMarker());
+                            pinObjs.get(k).setPickedUp(true);
 
-                    }
-                    else{
-                        small = mLoc.distanceTo(temp);
+                            PinFound(pinObjs.get(k).getMyPin().getDescription());
+                        }
+                        else{
+                            small = mLoc.distanceTo(temp);
 
-                        //Sets up a rounded bitmap for the nearest pin
-                        //Found on https://stackoverflow.com/questions/24878740/how-to-use-roundedbitmapdrawable
-                        Bitmap square = MapOptionsFactory.decodeBLOB(allPin.get(i).getPath());
-                        RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), square);
-                        rounded.setCornerRadius(Math.min(square.getWidth(), square.getHeight()) / 2.0f);
+                            //Sets up a rounded bitmap for the nearest pin
+                            //Found on https://stackoverflow.com/questions/24878740/how-to-use-roundedbitmapdrawable
+                            Bitmap square = MapOptionsFactory.decodeBLOB(pinObjs.get(k).getMyPin().getPath());
+                            rounded = RoundedBitmapDrawableFactory.create(getResources(), square);
+                            rounded.setCornerRadius(Math.min(square.getWidth(), square.getHeight()) / 2.0f);
 
-                        //Sets the nearPin button to hold that rounded bitmap
-                        mNearPin.setImageDrawable(rounded);
+                        }
                     }
                 }
             }
 
+            //Sets the nearPin button to hold that rounded bitmap
+            mNearPin.setImageDrawable(rounded);
+
+            Log.i("Booo", "Returned a distance of " + small);
+
+            //Returns the distance
             return small;
         }
         return -1;
@@ -453,22 +462,14 @@ public class FindPinFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             PinDatabase db = creator.getDatabase();
-            /*
-            allPins = (ArrayList<PinEntity>) db.PinsDao()
-                        .getPinsInsideBoundingBox(
-                          curLoc.latitude - 1000,
-                          curLoc.longitude - 1000,
-                          curLoc.latitude + 1000,
-                          curLoc.longitude + 1000
-                        );
-            */
+
             allPins = (ArrayList<PinEntity>) db.PinsDao().getAllPins();
 
-            Log.i("Bo", "Pins Size " + allPins.size());
-            Log.i("Bo", "Location " + curLoc.latitude + "" + curLoc.longitude);
+            Log.i("Boooo", "DB Query returned a size of " + allPins.size());
 
             for(int i = 0; i < allPins.size(); i++){
                 allMO.add(MapOptionsFactory.convertToMO(mContext, allPins.get(i)));
+
             }
 
             StringBuilder sbValue = new StringBuilder(sb());
@@ -483,10 +484,12 @@ public class FindPinFragment extends Fragment {
 
 
             for(int i = 0; i < allMO.size(); i++){
-                if(pHistory.get(allPins.get(i).getDescription()) == null){
-                    allPinMO.add(allMO.get(i));
-                    allPin.add(allPins.get((i)));
+
+                if(pinObjs.get(allPins.get(i).getDescription()) == null){
+                    PinWrapper tempPw = new PinWrapper(allPins.get(i), allMO.get(i), true);
+                    pinObjs.put(tempPw.getMyPin().getDescription(), tempPw);
                 }
+
             }
 
 
@@ -580,15 +583,12 @@ public class FindPinFragment extends Fragment {
             } catch (Exception e) {
                 Log.d("Exception", e.toString());
             }
-            Log.i("Booooooo", places.size() + "");
             return places;
         }
 
         @Override
         protected void onPostExecute(List<HashMap<String, String>> list) {
-            Log.i("Booogoogg", "I made it here, List Size: " + list.size());
             for (int i = 0; i < list.size(); i++) {
-                Log.i("Booogoogg", String.valueOf(i));
                 // Getting a place from the places list
                 HashMap<String, String> hmPlace = list.get(i);
 
@@ -632,46 +632,62 @@ public class FindPinFragment extends Fragment {
 
                 MarkerOptions mo = MapOptionsFactory.convertToMO(mContext, pe);
 
-                boolean place = true;
-
-                if(pHistory.get(pe.getDescription()) != null){
-                    place = false;
-                }
-
-                if(place){
-                    allPin.add(pe);
-                    allPinMO.add(mo);
-                    pHistory.put(pe.getDescription(), 1);
-                    Log.i("Added Location", pe.getDescription());
+                if(pinObjs.get(pe.getDescription()) == null){
+                    PinWrapper tempPw = new PinWrapper(pe, mo, false);
+                    pinObjs.put(tempPw.getMyPin().getDescription(), tempPw);
                 }
 
             }
         }
     }
 
-    private class IconTask extends AsyncTask<String, Void, Bitmap>{
-        HttpURLConnection connection;
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            try {
-                URL url = new URL(strings[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                return BitmapFactory.decodeStream(input);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } finally {
-                connection.disconnect();
-            }
+
+    private class PinWrapper{
+        private PinEntity myPin;
+        private MarkerOptions myMarker;
+        private boolean pickedUp;
+        private boolean placesPin;
+        private boolean userPin;
+
+        public PinWrapper(PinEntity myPin, MarkerOptions myMarker, boolean user){
+            this.myPin = myPin;
+            this.myMarker = myMarker;
+            pickedUp = false;
+            placesPin = !user;
+            userPin = user;
         }
 
-        @Override
-        protected void onPostExecute(Bitmap b){
-            iBitmap = b;
-            Log.i("Boooooooooo", "Set ibitmap to " + b.toString());
+        public PinEntity getMyPin() {
+            return myPin;
         }
+
+        public MarkerOptions getMyMarker() {
+            return myMarker;
+        }
+
+        public boolean isPickedUp() {
+            return pickedUp;
+        }
+
+        public void setPickedUp(boolean pickedUp) {
+            this.pickedUp = pickedUp;
+        }
+
+        public boolean isPlacesPin() {
+            return placesPin;
+        }
+
+        public void setPlacesPin(boolean placesPin) {
+            this.placesPin = placesPin;
+        }
+
+        public boolean isUserPin() {
+            return userPin;
+        }
+
+        public void setUserPin(boolean userPin) {
+            this.userPin = userPin;
+        }
+
     }
 }

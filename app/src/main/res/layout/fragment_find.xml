@@ -16,22 +16,23 @@
 
         <ImageView
             android:id="@+id/background_img"
-            android:layout_width="203dp"
+            android:layout_width="245dp"
             android:layout_height="70dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@color/gray600" />
+            app:srcCompat="@drawable/temp_border" />
 
         <TextView
             android:id="@+id/temp_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="24dp"
+            android:width="200dp"
+            android:textAlignment="center"
             android:textSize="40sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginRight="8dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/near_button"
