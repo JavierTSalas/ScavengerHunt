@@ -202,27 +202,29 @@ public class FindPinFragment extends Fragment {
             LocationListener locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    if(lastLoc == null || lastLoc.distanceTo(location) > 500){
-                        lastLoc = location;
-                        new getAllPins(getActivity().getApplicationContext(), new LatLng(location.getLatitude(), location.getLongitude())).execute();
-                    }
+                    if(isAdded()){
+                        if(lastLoc == null || lastLoc.distanceTo(location) > 500){
+                            lastLoc = location;
+                            new getAllPins(getActivity().getApplicationContext(), new LatLng(location.getLatitude(), location.getLongitude())).execute();
+                        }
 
-                    lat = location.getLatitude();
-                    lng = location.getLongitude();
-                    float dist = findClosestPin(location);
+                        lat = location.getLatitude();
+                        lng = location.getLongitude();
+                        float dist = findClosestPin(location);
 
-                    if(dist <= HOT_DISTANCE && dist > 0){
-                        mTemperature.setText(HOT_MESSAGE);
-                        mTemperature.setTextColor(Color.RED);
-                    } else if( dist <= WARM_DISTANCE && dist > 0){
-                        mTemperature.setText(WARM_MESSAGE);
-                        mTemperature.setTextColor(Color.YELLOW);
-                    } else if ( dist <= COOL_DISTANCE && dist > 0){
-                        mTemperature.setText(COOL_MESSAGE);
-                        mTemperature.setTextColor(Color.BLUE);
-                    } else {
-                        mTemperature.setText(FREEZING_MESSAGE);
-                        mTemperature.setTextColor(Color.CYAN);
+                        if(dist <= HOT_DISTANCE && dist > 0){
+                            mTemperature.setText(HOT_MESSAGE);
+                            mTemperature.setTextColor(Color.RED);
+                        } else if( dist <= WARM_DISTANCE && dist > 0){
+                            mTemperature.setText(WARM_MESSAGE);
+                            mTemperature.setTextColor(Color.YELLOW);
+                        } else if ( dist <= COOL_DISTANCE && dist > 0){
+                            mTemperature.setText(COOL_MESSAGE);
+                            mTemperature.setTextColor(Color.BLUE);
+                        } else {
+                            mTemperature.setText(FREEZING_MESSAGE);
+                            mTemperature.setTextColor(Color.CYAN);
+                        }
                     }
                 }
 
@@ -241,6 +243,12 @@ public class FindPinFragment extends Fragment {
 
                 }
             };
+            Location tempLoc = new Location("Initial Loc");
+            tempLoc.setLatitude(currentLocation.latitude);
+            tempLoc.setLongitude(currentLocation.longitude);
+
+            locationListener.onLocationChanged(tempLoc);
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
 
 
@@ -257,18 +265,6 @@ public class FindPinFragment extends Fragment {
 
         if(isAdded()){
             Toast.makeText(getActivity().getApplicationContext(), "Pins found this session: " + pinSessionCounter , Toast.LENGTH_LONG).show();
-
-            /*
-            Flashbar flashbar = new Flashbar.Builder(getActivity())
-                    .gravity(Flashbar.Gravity.TOP)
-                    .title("Pin Found!")
-                    .message("You found a new pin!\n" + "Pin name: " + name + "\nCurrent Score: " + points)
-                    .backgroundColor(R.color.colorPrimary)
-                    .build();
-
-            flashbar.show();
-            */
-
         }
 
 
@@ -434,6 +430,10 @@ public class FindPinFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void updateLocationBackend(){
+
     }
 
     private class getAllPins extends AsyncTask<Void, Void, Void> {
