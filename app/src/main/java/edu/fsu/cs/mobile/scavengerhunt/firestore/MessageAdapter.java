@@ -1,4 +1,4 @@
-package edu.fsu.cs.mobile.scavengerhunt.Firestore;
+package edu.fsu.cs.mobile.scavengerhunt.firestore;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

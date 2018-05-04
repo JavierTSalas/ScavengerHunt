@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import edu.fsu.cs.mobile.scavengerhunt.Firestore.Message;
-import edu.fsu.cs.mobile.scavengerhunt.Firestore.SimplePairAdapter;
 import edu.fsu.cs.mobile.scavengerhunt.R;
+import edu.fsu.cs.mobile.scavengerhunt.firestore.Message;
+import edu.fsu.cs.mobile.scavengerhunt.firestore.SimplePairAdapter;
 
 import static android.view.animation.Animation.INFINITE;
 

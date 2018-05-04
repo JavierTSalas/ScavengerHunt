@@ -1,4 +1,4 @@
-package edu.fsu.cs.mobile.scavengerhunt.Firestore;
+package edu.fsu.cs.mobile.scavengerhunt.firestore;
 
 /*
  * https://github.com/MahmoudAlyuDeen/FirebaseIM/blob/3fafaa07495e161840afc7c547c3d1b83538e770/app/src/main/java/afterapps/com/firebaseim/beans/Message.java

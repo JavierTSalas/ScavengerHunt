@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -25,12 +26,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import edu.fsu.cs.mobile.scavengerhunt.Firestore.SimplePairAdapter;
 import edu.fsu.cs.mobile.scavengerhunt.R;
+import edu.fsu.cs.mobile.scavengerhunt.firestore.SimplePairAdapter;
 
 import static android.view.animation.Animation.INFINITE;
 
@@ -49,6 +53,7 @@ public class FriendsListFragment extends Fragment implements SimplePairAdapter.o
     private TextView tvEmptyList;
     private LottieAnimationView lottieAnimation;
     private boolean emptyListFlag = false;
+    private Button bAdd;
 
 
     @Nullable
@@ -63,6 +68,24 @@ public class FriendsListFragment extends Fragment implements SimplePairAdapter.o
         usersRecycler = view.findViewById(R.id.friends_recycler);
         tvEmptyList = view.findViewById(R.id.empty_list_text);
         lottieAnimation = view.findViewById(R.id.lottieAnimationView);
+        etMessage = view.findViewById(R.id.friend_message_edit);
+        bAdd = view.findViewById(R.id.friend_add_button);
+        bAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                {
+
+                    String new_friend = etMessage.getText().toString();
+                    Map<String, String> myData = new HashMap<String, String>() {
+                    };
+                    myData.put("new_friend", new_friend);
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("friends").document(userId).set(myData, SetOptions.merge());
+
+
+                }
+            }
+        });
         /* friends/id/pendingFriends         */
         sChatQuery = Friend_ListCollection.document(userId).collection("pendingFriends");
         sChatQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
