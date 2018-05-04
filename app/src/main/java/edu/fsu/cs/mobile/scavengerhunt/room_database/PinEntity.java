@@ -4,10 +4,20 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v7.content.res.AppCompatResources;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.fsu.cs.mobile.scavengerhunt.R;
+import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
 
 
 /**
@@ -58,6 +68,10 @@ public class PinEntity {
         this.pickedUp = pickedUp;
         this.description = description;
         this.timePlaced = timePlaced;
+    }
+
+
+    public PinEntity() {
     }
 
     public Date getTimePlaced() {
@@ -113,4 +127,75 @@ public class PinEntity {
     }
 
 
+    public void setPinID(@NonNull String pinID) {
+        this.pinID = pinID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public void setPath(byte[] path) {
+        this.path = path;
+    }
+
+    public void setPickedUp(boolean pickedUp) {
+        this.pickedUp = pickedUp;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setTimePlaced(Date timePlaced) {
+        this.timePlaced = timePlaced;
+    }
+
+    // For sending to firebase
+    public HashMap<String, Object> toHashMap() {
+        HashMap<String, Object> objectHashMap = new HashMap<>();
+        objectHashMap.put("pinID", this.pinID);
+        objectHashMap.put("userID", this.userID);
+        objectHashMap.put("latitude", this.latitude);
+        objectHashMap.put("longitude", this.longitude);
+        objectHashMap.put("color", this.color);
+        objectHashMap.put("pickedUp", this.pickedUp);
+        objectHashMap.put("description", this.description);
+        objectHashMap.put("timePlaced", this.timePlaced);
+        return objectHashMap;
+    }
+
+    // For getting from firebase
+    public PinEntity(Map<String, Object> objectHashMap, Context mContext) {
+        this.pinID = (String) objectHashMap.get("pinID");
+        this.userID = (String) objectHashMap.get("userID");
+        this.longitude = (double) objectHashMap.get("longitude");
+        this.latitude = (double) objectHashMap.get("latitude");
+        this.color = (int) (long) (objectHashMap.get("color"));
+
+        // Initialize to default image - Don't want to do this right now 
+        Drawable drawable = AppCompatResources.getDrawable(mContext, R.drawable.camera);
+        Bitmap selectedBitmap;
+
+        selectedBitmap = MapOptionsFactory.drawableToBitmap(drawable);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        selectedBitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+
+        this.path = outputStream.toByteArray();
+        this.pickedUp = (boolean) objectHashMap.get("pickedUp");
+        this.description = (String) objectHashMap.get("description");
+        this.timePlaced = (Date) objectHashMap.get("timePlaced");
+    } 
 }

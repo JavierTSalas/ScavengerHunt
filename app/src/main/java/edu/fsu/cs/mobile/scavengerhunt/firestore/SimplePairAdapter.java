@@ -1,8 +1,10 @@
 package edu.fsu.cs.mobile.scavengerhunt.firestore;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import edu.fsu.cs.mobile.scavengerhunt.R;
 
@@ -57,6 +60,7 @@ public class SimplePairAdapter extends RecyclerView.Adapter<SimplePairAdapter.Me
         holder.setUser(mList.get(position));
         holder.setCallBack(mListener);
 
+
     }
 
 
@@ -75,11 +79,23 @@ public class SimplePairAdapter extends RecyclerView.Adapter<SimplePairAdapter.Me
         }
 
 
-        void setUser(Pair<String, String> user) {
+        void setUser(final Pair<String, String> user) {
             this.user = user;
             tvItemFriendName.setText(user.first);
             tvItemFriendUid.setText(user.second);
 
+            Pattern pattern = Pattern.compile("^[a-f0-9]{32}$");
+            Linkify.addLinks(tvItemFriendName, pattern, "scavenger_hunt://pin/");
+            if (pattern.matcher(tvItemFriendName.getText()).matches()) {
+                tvItemFriendName.setTextColor(Color.blue(100));
+                tvItemFriendName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        callBack.onItemClick(user);
+                    }
+                });
+
+            }
         }
 
         public void setCallBack(onUserClickFriend callBack) {
@@ -88,7 +104,10 @@ public class SimplePairAdapter extends RecyclerView.Adapter<SimplePairAdapter.Me
 
         @Override
         public void onClick(View v) {
-            callBack.onItemClick(user);
+            Pattern pattern = Pattern.compile("^[a-f0-9]{32}$");
+            Linkify.addLinks(tvItemFriendName, pattern, "scavenger_hunt://pin/");
+            if (!pattern.matcher(tvItemFriendName.getText()).matches())
+                callBack.onItemClick(user);
         }
     }
 }

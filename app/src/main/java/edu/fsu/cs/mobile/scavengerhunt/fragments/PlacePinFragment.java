@@ -1,6 +1,8 @@
 package edu.fsu.cs.mobile.scavengerhunt.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -31,13 +34,22 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
+import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
 import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class PlacePinFragment extends Fragment {
     private static final String TAG = PlacePinFragment.class.getCanonicalName();
@@ -78,12 +90,81 @@ public class PlacePinFragment extends Fragment {
             }
         });
 
+        readBundle(getArguments());
 
         // Required for using our tool bar
         setHasOptionsMenu(true);
 
         return view;
     }
+
+    private void readBundle(Bundle bundle) {
+        if (bundle != null) {
+            String firebaseId = bundle.getString("firebaseID");
+            Log.d(TAG, "Read from bundle=" + firebaseId);
+            placePinFromDirebase(firebaseId);
+        }
+    }
+
+    private void placePinFromDirebase(String firebaseID) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("pins").document(firebaseID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        PinEntity pe = new PinEntity(document.getData(), getActivity().getApplicationContext());
+                        (new InsertTask(getActivity().getApplicationContext(), pe)).execute();
+
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+
+    private class InsertTask extends AsyncTask<Void, Void, Void> {
+        Context mContext;
+        PinEntity pinEntity;
+        final PinDatabaseCreator creator;
+        private MarkerOptions mapOptions;
+
+        public InsertTask(Context mContext, PinEntity pe) {
+            this.mContext = mContext;
+            this.pinEntity = pe;
+            creator = PinDatabaseCreator.getInstance(mContext);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (creator.isDatabaseCreated().getValue().equals(Boolean.FALSE))
+                creator.createDb(mContext);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            PinDatabase database = creator.getDatabase();
+            database.PinsDao().insert(pinEntity);
+            mapOptions = MapOptionsFactory.convertToMO(mContext, pinEntity);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            googleMap.addMarker(mapOptions);
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapOptions.getPosition(), 15));
+            super.onPostExecute(aVoid);
+        }
+    }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -121,6 +202,20 @@ public class PlacePinFragment extends Fragment {
         GetPinInfoFragment dialogFragment = GetPinInfoFragment.newInstance(generateLatLong());
         dialogFragment.setTargetFragment(this, GetPinInfoFragment.DIALOG_FRAGMENT_REQUEST);
         dialogFragment.show(fm, GetPinInfoFragment.FRAGMENT_TAG);
+    }
+
+    /**
+     * Constructor for creating an instance with a LatLng
+     *
+     * @param id
+     * @return PlacePinFragment with information as local data
+     */
+    public static PlacePinFragment newInstance(String id) {
+        Bundle args = new Bundle();
+        PlacePinFragment fragment = new PlacePinFragment();
+        args.putString("firebaseID", id);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     private LatLng generateLatLong() {
@@ -218,6 +313,8 @@ public class PlacePinFragment extends Fragment {
         String pinId;
         MarkerOptions mapOptions;
         final PinDatabaseCreator creator;
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
         placePinGivenId(Context mContext, String id) {
             this.mContext = mContext;
@@ -234,8 +331,30 @@ public class PlacePinFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            PinDatabase db = creator.getDatabase();
-            mapOptions = MapOptionsFactory.convertToMO(mContext, db.PinsDao().getSingleEntity(pinId));
+            PinDatabase pinDatabase = creator.getDatabase();
+            final PinEntity pin = pinDatabase.PinsDao().getSingleEntity(pinId);
+            mapOptions = MapOptionsFactory.convertToMO(mContext, pin);
+
+            // Update one field, creating the document if it does not already exist.
+
+            db.collection("pins").document(pinId).set(pin.toHashMap(), SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d(TAG, "Wrote id=" + pinId);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG, "Error writing document id=" + pinId, e);
+                }
+            });
+            Snackbar.make(getActivity().findViewById(android.R.id.content), "Click to copy the pinID ", Snackbar.LENGTH_INDEFINITE).setAction("Click to copy!", new View.OnClickListener() {
+                public void onClick(View v) {
+                    ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("pinId", pinId);
+                    clipboard.setPrimaryClip(clip);
+                }
+            }).show();
             return null;
         }
 
@@ -268,8 +387,6 @@ public class PlacePinFragment extends Fragment {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            getLocationPermission(); //Persistence is key
-            // TODO This is NOT the way to handle this, oh well
         }
     }
 

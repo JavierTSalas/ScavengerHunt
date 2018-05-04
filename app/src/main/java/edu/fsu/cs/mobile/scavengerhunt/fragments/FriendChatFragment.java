@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -220,9 +222,19 @@ public class FriendChatFragment extends Fragment {
         return new SimplePairAdapter(new ArrayList<Pair<String, String>>(), new SimplePairAdapter.onUserClickFriend() {
             @Override
             public void onItemClick(Pair<String, String> item) {
-
+                Log.d(TAG, "Got from messages=" + item.first);
+                openPlacePinWithId(item.first);
             }
         });
+    }
+
+    private void openPlacePinWithId(String first) {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        PlacePinFragment fragment = PlacePinFragment.newInstance(first);
+        trans.replace(R.id.frame, fragment, PlacePinFragment.FRAGMENT_TAG);
+        trans.addToBackStack("Place");
+        trans.commit();
     }
 
 
