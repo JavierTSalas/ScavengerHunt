@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Date;
+
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
@@ -72,15 +74,16 @@ public class DatabaseTestFragment extends Fragment implements View.OnClickListen
     private PinEntity extractFromFields() {
         //    Constructor => PinEntity(long pinID, long userID, long longitude, long latitude, Color color, URI path, String description)
         return new PinEntity(
-                0,
-                Long.parseLong(etUserPid.getText().toString()),
+                "Sample",
+                "This is deprecated",
                 Long.parseLong(etLongitude.getText().toString()),
                 Long.parseLong(etLatitude.getText().toString()),
                 // COLORS HAVE TO START WITH #
                 Color.parseColor(etColor.getText().toString()),
                 new byte[]{0, 0, 0}, // This is weird but refer to the documentation provided in PinEntity
                 false,
-                etDescription.getText().toString());
+                etDescription.getText().toString(),
+                new Date());
 
     }
 
@@ -135,13 +138,13 @@ public class DatabaseTestFragment extends Fragment implements View.OnClickListen
 
 
     private class FetchTask extends AsyncTask<Void, Void, Void> {
-        long IndexToFetch;
+        String IndexToFetch;
         Context mContext;
         final PinDatabaseCreator creator;
         PinEntity entity;
 
         public FetchTask(String string, Context mContext) {
-            IndexToFetch = Long.parseLong(string);
+            IndexToFetch = string;
             this.mContext = mContext;
             creator = PinDatabaseCreator.getInstance(mContext);
         }

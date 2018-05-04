@@ -106,7 +106,7 @@ public class PlacePinFragment extends Fragment {
         switch (requestCode) {
             case GetPinInfoFragment.DIALOG_FRAGMENT_REQUEST:
                 if (resultCode == RESULT_OK) {
-                    Long id = data.getLongExtra(GetPinInfoFragment.UNIQUE_KEY, 0);
+                    String id = data.getStringExtra(GetPinInfoFragment.UNIQUE_KEY);
                     Log.d(TAG, "Received " + String.valueOf(id) + " from intent");
 
                     (new placePinGivenId(getActivity().getApplicationContext(), id)).execute();
@@ -215,11 +215,11 @@ public class PlacePinFragment extends Fragment {
 
     private class placePinGivenId extends AsyncTask<Void, Void, Void> {
         Context mContext;
-        Long pinId;
+        String pinId;
         MarkerOptions mapOptions;
         final PinDatabaseCreator creator;
 
-        placePinGivenId(Context mContext, long id) {
+        placePinGivenId(Context mContext, String id) {
             this.mContext = mContext;
             this.pinId = id;
             creator = PinDatabaseCreator.getInstance(mContext);
@@ -269,6 +269,7 @@ public class PlacePinFragment extends Fragment {
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             getLocationPermission(); //Persistence is key
+            // TODO This is NOT the way to handle this, oh well
         }
     }
 

@@ -9,12 +9,12 @@ import java.util.List;
 
 @Dao
 public interface PinsDao {
-    @Query("SELECT * FROM pins")
         // DO NOT USE THIS - I'M NOT EVEN SURE WHY I'M WRITING ONE
+        @Query("SELECT * FROM pins")
     List<PinEntity> getAllPins();
 
     @Query("SELECT * FROM pins WHERE pinID = :pinID")
-    PinEntity getSingleEntity(long pinID);
+    PinEntity getSingleEntity(String pinID);
 
     @Query("SELECT Count(*) FROM pins")
     int getCountOfEntities();

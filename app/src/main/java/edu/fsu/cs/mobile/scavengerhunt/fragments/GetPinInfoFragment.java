@@ -27,6 +27,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.vansuita.pickimage.bean.PickResult;
 import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
@@ -34,12 +35,14 @@ import com.vansuita.pickimage.listeners.IPickCancel;
 import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
 import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
+import edu.fsu.cs.mobile.scavengerhunt.util.md5hasher;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -201,12 +204,11 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
 
 
     /**
-     *
      * Communication with PlacePinFragment
      * @param REQUEST_CODE
      * @param id            our pinID
      */
-    private void sendResult(int REQUEST_CODE,long id) {
+    private void sendResult(int REQUEST_CODE, String id) {
         Intent intent = new Intent();
         intent.putExtra(UNIQUE_KEY, id);
         getTargetFragment().onActivityResult(REQUEST_CODE,RESULT_OK, intent);
@@ -259,7 +261,7 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
     private class InsertTask extends AsyncTask<Void, Void, Void> {
         Context mContext;
         final PinDatabaseCreator creator;
-        private long idOfNewEntry;
+        private String idOfNewEntry;
         byte[] BLOB;
 
         public InsertTask(Context mContext) {
@@ -284,24 +286,29 @@ public class GetPinInfoFragment extends DialogFragment implements View.OnClickLi
                 BLOB = outputStream.toByteArray();
             }
 
+            Date now = new Date();
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            String unsalted_key = now.hashCode() + "_" + userId;
+            String saltedKey = md5hasher.md5(unsalted_key);
+
             PinEntity EntityToInsert = new PinEntity(
-                    0,
-                    0, // For later use, now just 0
+                    saltedKey,
+                    userId,
                     Lat,
                     Lng,
                     selectedColorRGB,
                     BLOB,
                     false,
-                    etDesc.getText().toString());
+                    etDesc.getText().toString(),
+                    now);
             database.PinsDao().insert(EntityToInsert);
-            idOfNewEntry = database.PinsDao().getPinIDOfLastEntry();
+            idOfNewEntry = saltedKey;
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            String text = "Inserted element " + idOfNewEntry ;
-            Log.d(TAG, text);
+            Log.d(TAG, "Inserted element " + idOfNewEntry);
             sendResult(DIALOG_FRAGMENT_REQUEST,idOfNewEntry);
             dismiss();
             super.onPostExecute(aVoid);

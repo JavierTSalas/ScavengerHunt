@@ -4,6 +4,10 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
+import java.util.Arrays;
+import java.util.Date;
 
 
 /**
@@ -14,12 +18,13 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity(tableName = "pins", indices = @Index("pinID"))
 public class PinEntity {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
+    @NonNull
     @ColumnInfo(name = "pinID")
-    private long pinID;
+    private String pinID;
 
     @ColumnInfo(name = "userID")
-    private long userID;
+    private String userID;
 
     @ColumnInfo(name = "longitude")
     private double longitude;
@@ -40,15 +45,24 @@ public class PinEntity {
     @ColumnInfo(name = "description")
     private String description;
 
-    public PinEntity(long pinID, long userID, double latitude, double longitude, int color, byte[] path, boolean pickedUp, String description) {
+    @ColumnInfo(name = "timePlaced")
+    private Date timePlaced;
+
+    public PinEntity(String pinID, String userID, double longitude, double latitude, int color, byte[] path, boolean pickedUp, String description, Date timePlaced) {
         this.pinID = pinID;
         this.userID = userID;
-        this.latitude = latitude;
         this.longitude = longitude;
+        this.latitude = latitude;
         this.color = color;
         this.path = path;
         this.pickedUp = pickedUp;
         this.description = description;
+        this.timePlaced = timePlaced;
+    }
+
+    public Date getTimePlaced() {
+
+        return timePlaced;
     }
 
     @Override
@@ -59,16 +73,18 @@ public class PinEntity {
                 ", longitude=" + longitude +
                 ", latitude=" + latitude +
                 ", color=" + color +
-                ", path=" + path +
+                ", path=" + Arrays.toString(path) +
+                ", pickedUp=" + pickedUp +
                 ", description='" + description + '\'' +
+                ", timePlaced=" + timePlaced +
                 '}';
     }
 
-    public long getPinID() {
+    public String getPinID() {
         return pinID;
     }
 
-    public long getUserID() {
+    public String getUserID() {
         return userID;
     }
 

@@ -31,7 +31,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.andrognito.flashbar.Flashbar;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -40,10 +39,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -58,10 +55,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 import edu.fsu.cs.mobile.scavengerhunt.R;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabase;
@@ -69,6 +66,7 @@ import edu.fsu.cs.mobile.scavengerhunt.room_database.PinDatabaseCreator;
 import edu.fsu.cs.mobile.scavengerhunt.room_database.PinEntity;
 import edu.fsu.cs.mobile.scavengerhunt.util.MapOptionsFactory;
 import edu.fsu.cs.mobile.scavengerhunt.util.PlaceJSON;
+import edu.fsu.cs.mobile.scavengerhunt.util.md5hasher;
 
 public class FindPinFragment extends Fragment {
     private static final String TAG = FindPinFragment.class.getCanonicalName();
@@ -573,7 +571,7 @@ public class FindPinFragment extends Fragment {
 
             List<HashMap<String, String>> places = null;
             PlaceJSON placeJson = new PlaceJSON();
-            Log.i("Booooooooooo", jsonData[0]);
+            Log.i(TAG, jsonData[0]);
 
             try {
                 jObject = new JSONObject(jsonData[0]);
@@ -606,7 +604,7 @@ public class FindPinFragment extends Fragment {
                 LatLng latLng = new LatLng(tempLat, tempLng);
 
                 String imageUrl = hmPlace.get("imageUrl");
-                Log.i("Boooooo", "Image URL is " + imageUrl);
+                Log.i(TAG, "Image URL is " + imageUrl);
 
                 Drawable d = getResources().getDrawable(R.drawable.default_pin);
 
@@ -619,15 +617,21 @@ public class FindPinFragment extends Fragment {
                 iconBitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
                 BLOB = outputStream.toByteArray();
 
+                Date now = new Date();
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String unsalted_key = now.hashCode() + "_" + userId;
+                String saltedKey = md5hasher.md5(unsalted_key);
+
                 PinEntity pe = new PinEntity(
-                        0,
-                        0, // For later use, now just 0
+                        saltedKey,
+                        userId, // For later use, now just 0
                         tempLat,
                         tempLng,
                         tempColor,
                         BLOB,
                         false,
-                        name
+                        name,
+                        now
                 );
 
                 MarkerOptions mo = MapOptionsFactory.convertToMO(mContext, pe);
