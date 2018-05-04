@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.SettingsFragment">
+
+
+    <ImageView
+        android:id="@+id/bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:src="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/test_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="Settings"
+        android:textAllCaps="true"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/friend_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/settings_icon"
+        android:text="New Friend Notifications" />
+
+    <TextView
+        android:id="@+id/online_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/friend_text"
+        android:layout_below="@id/friend_text"
+        android:layout_marginTop="30dp"
+        android:text="Online Friend Notifications" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/friend_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/friend_text"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"/>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/online_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/online_text"
+        android:layout_alignLeft="@id/friend_check"/>
+
+    <ImageView
+        android:id="@+id/settings_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_below="@+id/test_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:src="@android:drawable/ic_menu_manage" />
+
+
+</RelativeLayout>
