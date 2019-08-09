@@ -5,6 +5,6 @@ Sample login:
 
 Username (Enter anything)
 
-Email: notmyeamil@youguessit.com
+Email: **No longer available** 
 
-Password: password
+Password: **No longer available**
